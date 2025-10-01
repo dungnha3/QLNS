@@ -1,54 +1,48 @@
 package QuanLy.QLNS.Entity;
 
-import java.util.Date;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
-@Table(name = "ChamCong")
+@Table(name = "cham_cong")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChamCong {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer chamcongId;
-
+    private Long chamcong_id;
+    
+    @Column(nullable = false)
+    private LocalTime gio_ra;
+    
+    @Column(nullable = false)
+    private LocalTime gio_vao;
+    
+    @Column(nullable = false)
+    private LocalDate ngay_lam;
+    
+    @Column(nullable = false)
+    private Integer ngay_tam;
+    
+    @Column(nullable = false)
+    private LocalDate trang_thai;
+    
+    @Column(name = "tong_gio_lam")
+    private Double tongGioLam;
+    
+    @Column(name = "loai_ca", length = 50)
+    private String loaiCa; // SANG, CHIEU, TOI, FULL
+    
+    @Column(name = "ghi_chu", columnDefinition = "TEXT")
+    private String ghiChu;
+    
     @ManyToOne
-    @JoinColumn(name = "nhanvien_id")
+    @JoinColumn(name = "nhanvien_id", nullable = false)
     private NhanVien nhanVien;
-
-    private Date ngayLam;
-    private String gioVao;
-    private String gioRa;
-    private String trangThai; // cho_xac_nhan / da_xac_nhan / tu_choi
-
-    @ManyToOne
-    @JoinColumn(name = "nguoi_xacnhan")
-    private NhanVien nguoiXacnhan;
-
-    // Getter Setter
-    public Integer getChamcongId() { return chamcongId; }
-    public void setChamcongId(Integer chamcongId) { this.chamcongId = chamcongId; }
-
-    public NhanVien getNhanVien() { return nhanVien; }
-    public void setNhanVien(NhanVien nhanVien) { this.nhanVien = nhanVien; }
-
-    public Date getNgayLam() { return ngayLam; }
-    public void setNgayLam(Date ngayLam) { this.ngayLam = ngayLam; }
-
-    public String getGioVao() { return gioVao; }
-    public void setGioVao(String gioVao) { this.gioVao = gioVao; }
-
-    public String getGioRa() { return gioRa; }
-    public void setGioRa(String gioRa) { this.gioRa = gioRa; }
-
-    public String getTrangThai() { return trangThai; }
-    public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
-
-    public NhanVien getNguoiXacnhan() { return nguoiXacnhan; }
-    public void setNguoiXacnhan(NhanVien nguoiXacnhan) { this.nguoiXacnhan = nguoiXacnhan; }
 }

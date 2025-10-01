@@ -1,28 +1,37 @@
 package QuanLy.QLNS.Entity;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.util.List;
 
 @Entity
-@Table(name = "PhongBan")
+@Table(name = "phong_ban")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PhongBan {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer phongbanId;
-
-    private String tenPhongban;
-    private String diaDiem;
-
-    // Getter Setter
-    public Integer getPhongbanId() { return phongbanId; }
-    public void setPhongbanId(Integer phongbanId) { this.phongbanId = phongbanId; }
-
-    public String getTenPhongban() { return tenPhongban; }
-    public void setTenPhongban(String tenPhongban) { this.tenPhongban = tenPhongban; }
-
-    public String getDiaDiem() { return diaDiem; }
-    public void setDiaDiem(String diaDiem) { this.diaDiem = diaDiem; }
+    private Long phongban_id;
+    
+    @Column(nullable = false, length = 100)
+    private String dia_diem;
+    
+    @Column(nullable = false, length = 200)
+    private String ten_phongban;
+    
+    @Column(columnDefinition = "TEXT")
+    private String mo_ta;
+    
+    @Column(name = "so_luong_nhanvien")
+    private Integer soLuongNhanVien;
+    
+    @OneToMany(mappedBy = "phongBan")
+    private List<NhanVien> nhanViens;
 }
+
+
+
+

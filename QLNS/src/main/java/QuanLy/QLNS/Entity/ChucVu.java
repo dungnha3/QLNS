@@ -1,32 +1,38 @@
 package QuanLy.QLNS.Entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
-@Table(name = "ChucVu")
+@Table(name = "chuc_vu")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChucVu {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer chucvuId;
-
-    private String tenChucvu;
-    private String moTa;
-    private Double luongCoBan;
-
-    // Getter Setter
-    public Integer getChucvuId() { return chucvuId; }
-    public void setChucvuId(Integer chucvuId) { this.chucvuId = chucvuId; }
-
-    public String getTenChucvu() { return tenChucvu; }
-    public void setTenChucvu(String tenChucvu) { this.tenChucvu = tenChucvu; }
-
-    public String getMoTa() { return moTa; }
-    public void setMoTa(String moTa) { this.moTa = moTa; }
-
-    public Double getLuongCoBan() { return luongCoBan; }
-    public void setLuongCoBan(Double luongCoBan) { this.luongCoBan = luongCoBan; }
+    private Long chucvu_id;
+    
+    @Column(nullable = false, length = 100)
+    private String luong_co_ban;
+    
+    @Column(nullable = false, length = 200)
+    private String mo_ta;
+    
+    @Column(nullable = false, length = 100)
+    private String ten_chucvu;
+    
+    @Column(name = "muc_luong_toi_thieu", precision = 15, scale = 2)
+    private BigDecimal mucLuongToiThieu;
+    
+    @Column(name = "muc_luong_toi_da", precision = 15, scale = 2)
+    private BigDecimal mucLuongToiDa;
+    
+    @OneToMany(mappedBy = "chucVu")
+    private List<NhanVien> nhanViens;
 }

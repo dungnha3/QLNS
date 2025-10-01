@@ -1,47 +1,48 @@
 package QuanLy.QLNS.Entity;
 
-import java.util.Date;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
-@Table(name = "HopDong")
+@Table(name = "hop_dong")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class HopDong {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer hopdongId;
-
+    private Long hopdong_id;
+    
+    @Column(nullable = false, length = 100)
+    private String loai_hopdong; // THU_VIEC, CHINH_THUC, HOP_TAC_VIEN
+    
+    @Column(nullable = false, length = 200)
+    private String muc_luong;
+    
+    @Column(nullable = false)
+    private LocalDate ngay_batdau;
+    
+    @Column
+    private LocalDate ngay_ketthuc;
+    
+    @Column(nullable = false)
+    private LocalDate ngay_ky;
+    
+    @Column(name = "luong_co_ban", precision = 15, scale = 2)
+    private BigDecimal luongCoBan;
+    
+    @Column(name = "trang_thai", length = 50)
+    private String trangThai; // CON_HIEU_LUC, HET_HAN, HUY
+    
+    @Column(name = "ghi_chu", columnDefinition = "TEXT")
+    private String ghiChu;
+    
     @ManyToOne
-    @JoinColumn(name = "nhanvien_id")
+    @JoinColumn(name = "nhanvien_id", nullable = false)
     private NhanVien nhanVien;
-
-    private String loaiHopdong;
-    private Date ngayBatdau;
-    private Date ngayKetthuc;
-    private Double mucLuong;
-
-    // Getter Setter
-    public Integer getHopdongId() { return hopdongId; }
-    public void setHopdongId(Integer hopdongId) { this.hopdongId = hopdongId; }
-
-    public NhanVien getNhanVien() { return nhanVien; }
-    public void setNhanVien(NhanVien nhanVien) { this.nhanVien = nhanVien; }
-
-    public String getLoaiHopdong() { return loaiHopdong; }
-    public void setLoaiHopdong(String loaiHopdong) { this.loaiHopdong = loaiHopdong; }
-
-    public Date getNgayBatdau() { return ngayBatdau; }
-    public void setNgayBatdau(Date ngayBatdau) { this.ngayBatdau = ngayBatdau; }
-
-    public Date getNgayKetthuc() { return ngayKetthuc; }
-    public void setNgayKetthuc(Date ngayKetthuc) { this.ngayKetthuc = ngayKetthuc; }
-
-    public Double getMucLuong() { return mucLuong; }
-    public void setMucLuong(Double mucLuong) { this.mucLuong = mucLuong; }
 }

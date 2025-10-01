@@ -1,53 +1,72 @@
 package QuanLy.QLNS.Entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
-@Table(name = "BangLuong")
+@Table(name = "bang_luong")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class BangLuong {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer bangluongId;
-
+    private Long bangluong_id;
+    
+    @Column(nullable = false, length = 100)
+    private String khau_tru;
+    
+    @Column(nullable = false, length = 200)
+    private String luong_co_ban;
+    
+    @Column(nullable = false, length = 100)
+    private String phu_cap;
+    
+    @Column(nullable = false)
+    private Integer thang_nam;
+    
+    @Column(nullable = false, length = 100)
+    private String thuc_lanh;
+    
+    @Column(nullable = false, length = 100)
+    private String tong_cong;
+    
+    @Column(name = "thang", nullable = false)
+    private Integer thang;
+    
+    @Column(name = "nam", nullable = false)
+    private Integer nam;
+    
+    @Column(name = "thuong", precision = 15, scale = 2)
+    private BigDecimal thuong;
+    
+    @Column(name = "phat", precision = 15, scale = 2)
+    private BigDecimal phat;
+    
+    @Column(name = "bhxh", precision = 15, scale = 2)
+    private BigDecimal bhxh;
+    
+    @Column(name = "bhyt", precision = 15, scale = 2)
+    private BigDecimal bhyt;
+    
+    @Column(name = "bhtn", precision = 15, scale = 2)
+    private BigDecimal bhtn;
+    
+    @Column(name = "thue_thu_nhap", precision = 15, scale = 2)
+    private BigDecimal thueThuNhap;
+    
+    @Column(name = "ngay_thanh_toan")
+    private LocalDate ngayThanhToan;
+    
+    @Column(name = "trang_thai", length = 50)
+    private String trangThai; // CHO_DUYET, DA_DUYET, DA_THANH_TOAN
+    
     @ManyToOne
-    @JoinColumn(name = "nhanvien_id")
+    @JoinColumn(name = "nhanvien_id", nullable = false)
     private NhanVien nhanVien;
-
-    private String thangNam; // ví dụ "2025-09"
-    private Integer tongCong;
-    private Double luongCoBan;
-    private Double phuCap;
-    private Double khauTru;
-    private Double thucLanh;
-
-    // Getter Setter
-    public Integer getBangluongId() { return bangluongId; }
-    public void setBangluongId(Integer bangluongId) { this.bangluongId = bangluongId; }
-
-    public NhanVien getNhanVien() { return nhanVien; }
-    public void setNhanVien(NhanVien nhanVien) { this.nhanVien = nhanVien; }
-
-    public String getThangNam() { return thangNam; }
-    public void setThangNam(String thangNam) { this.thangNam = thangNam; }
-
-    public Integer getTongCong() { return tongCong; }
-    public void setTongCong(Integer tongCong) { this.tongCong = tongCong; }
-
-    public Double getLuongCoBan() { return luongCoBan; }
-    public void setLuongCoBan(Double luongCoBan) { this.luongCoBan = luongCoBan; }
-
-    public Double getPhuCap() { return phuCap; }
-    public void setPhuCap(Double phuCap) { this.phuCap = phuCap; }
-
-    public Double getKhauTru() { return khauTru; }
-    public void setKhauTru(Double khauTru) { this.khauTru = khauTru; }
-
-    public Double getThucLanh() { return thucLanh; }
-    public void setThucLanh(Double thucLanh) { this.thucLanh = thucLanh; }
 }
