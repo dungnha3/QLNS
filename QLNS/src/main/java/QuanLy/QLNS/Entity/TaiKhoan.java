@@ -2,6 +2,8 @@ package QuanLy.QLNS.Entity;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -36,6 +38,7 @@ public class TaiKhoan {
     private String ten_dangnhap;
     
     @OneToOne(mappedBy = "taiKhoan")
+    @JsonIgnore
     private NhanVien nhanVien;
     
     @Column(name = "created_at")

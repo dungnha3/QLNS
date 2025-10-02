@@ -22,4 +22,8 @@ public interface TaiKhoanRepository extends JpaRepository<TaiKhoan, Long> {
     // Tìm theo quyền hạn
     @Query("SELECT t FROM TaiKhoan t WHERE t.quyen_han = :quyenHan")
     List<TaiKhoan> findByQuyenHan(@Param("quyenHan") String quyenHan);
+    
+    // Đếm theo quyền hạn
+    @Query("SELECT COUNT(t) FROM TaiKhoan t WHERE t.quyen_han = :quyenHan")
+    long countByQuyenHan(@Param("quyenHan") String quyenHan);
 }

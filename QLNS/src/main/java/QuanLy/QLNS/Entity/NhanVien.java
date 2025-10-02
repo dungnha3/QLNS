@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "nhan_vien")
 @Data
@@ -58,18 +60,23 @@ public class NhanVien {
     private ChucVu chucVu;
     
     @OneToMany(mappedBy = "nhanVien")
+    @JsonIgnore
     private List<ChamCong> chamCongs;
     
     @OneToMany(mappedBy = "nhanVien")
+    @JsonIgnore
     private List<HopDong> hopDongs;
     
     @OneToMany(mappedBy = "nhanVien")
+    @JsonIgnore
     private List<BangLuong> bangLuongs;
     
     @OneToMany(mappedBy = "nhanVien")
+    @JsonIgnore
     private List<NghiPhep> nghiPheps;
     
     @OneToMany(mappedBy = "nhanVien")
+    @JsonIgnore
     private List<DanhGia> danhGias;
 }
 

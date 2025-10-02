@@ -45,7 +45,7 @@ public class BangLuongController {
 	@PostMapping
 	public ResponseEntity<BangLuong> create(@RequestBody BangLuong body) {
 		BangLuong created = service.create(body);
-		return ResponseEntity.created(URI.create("/api/bangluong/" + created.getBangluong_id())).body(created);
+		return ResponseEntity.created(URI.create("/api/bang-luong/" + created.getBangluong_id())).body(created);
 	}
 
 	@PutMapping("/{id}")
@@ -64,6 +64,7 @@ public class BangLuongController {
 		return ResponseEntity.ok(service.findByTrangThai(trangThai));
 	}
 }
+
 
 
 

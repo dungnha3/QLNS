@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "chuc_vu")
 @Data
@@ -34,5 +36,6 @@ public class ChucVu {
     private BigDecimal mucLuongToiDa;
     
     @OneToMany(mappedBy = "chucVu")
+    @JsonIgnore
     private List<NhanVien> nhanViens;
 }

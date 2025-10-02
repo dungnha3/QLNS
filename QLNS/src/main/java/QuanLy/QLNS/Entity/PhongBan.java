@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "phong_ban")
 @Data
@@ -29,6 +31,7 @@ public class PhongBan {
     private Integer soLuongNhanVien;
     
     @OneToMany(mappedBy = "phongBan")
+    @JsonIgnore
     private List<NhanVien> nhanViens;
 }
 
