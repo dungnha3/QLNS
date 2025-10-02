@@ -5,19 +5,24 @@ QLNS là một hệ thống quản lý nhân sự được xây dựng bằng Sp
 
 ## Công nghệ sử dụng
 - **Backend**: Spring Boot 3.5.6
-- **Database**: H2 Database (in-memory)
+- **Database**: SQL Server 2019+
 - **Java**: JDK 21
 - **Build Tool**: Maven
 - **ORM**: JPA/Hibernate
+- **Security**: Spring Security + JWT
+- **Authentication**: Bearer Token (JWT)
 
 ## Cấu trúc dự án
 ```
 src/main/java/QuanLy/QLNS/
-├── Config/                 # Cấu hình bảo mật
+├── Config/                 # Security & Configuration
 ├── Controller/             # REST API Controllers
+├── dto/                    # Data Transfer Objects
 ├── Entity/                 # JPA Entities
 ├── Repository/             # Data Access Layer
+├── Security/               # JWT Authentication Filter
 ├── Service/                # Business Logic Layer
+├── util/                   # Utilities (JWT, Validation)
 └── QlnsApplication.java    # Main Application Class
 ```
 
@@ -60,38 +65,44 @@ src/main/java/QuanLy/QLNS/
 - Hệ thống đăng nhập
 - Phân quyền người dùng
 
-## Cách chạy ứng dụng
+## 🚀 Khởi động nhanh
 
-### Yêu cầu hệ thống
-- JDK 21 hoặc cao hơn
-- Maven 3.6+
+### Xem hướng dẫn chi tiết: [SETUP_GUIDE.md](SETUP_GUIDE.md)
 
-### Cách 1: Sử dụng Maven
-```bash
-cd QLNS
-mvn spring-boot:run
-```
+### Các bước cơ bản:
 
-### Cách 2: Sử dụng file batch (Windows)
-```bash
-cd QLNS
-run.bat
-```
+1. **Setup Database:**
+   - SQL Server 2019+
+   - Database: `quanlynhansu`
+   - User: `nhombay` / Password: `123`
 
-### Cách 3: Build và chạy JAR
-```bash
-cd QLNS
-mvn clean package
-java -jar target/QLNS-0.0.1-SNAPSHOT.war
-```
+2. **Chạy ứng dụng:**
+   ```bash
+   cd QLNS
+   mvn spring-boot:run
+   ```
 
-## Truy cập ứng dụng
+3. **Tạo tài khoản admin đầu tiên:**
+   ```bash
+   curl -X POST http://localhost:8080/api/auth/register \
+     -H "Content-Type: application/json" \
+     -d '{"ten_dangnhap":"admin","mat_khau":"Admin@123456","quyen_han":"ADMIN"}'
+   ```
 
-- **API Base URL**: http://localhost:8080
-- **H2 Database Console**: http://localhost:8080/h2-console
-  - JDBC URL: `jdbc:h2:mem:qlnsdb`
-  - Username: `sa`
-  - Password: `password`
+4. **Đăng nhập:**
+   ```bash
+   curl -X POST http://localhost:8080/api/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{"tenDangnhap":"admin","matKhau":"Admin@123456"}'
+   ```
+
+## 📚 Tài liệu
+
+- **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Hướng dẫn cài đặt chi tiết
+- **[API_GUIDE.md](API_GUIDE.md)** - Tài liệu API đầy đủ
+- **[FRONTEND_INTEGRATION.md](FRONTEND_INTEGRATION.md)** - Tích hợp Frontend
+- **[QLNS_Postman_Collection.json](QLNS_Postman_Collection.json)** - Postman Collection
+- **[frontend-demo.html](frontend-demo.html)** - Demo Frontend
 
 ## API Endpoints
 
@@ -166,20 +177,65 @@ java -jar target/QLNS-0.0.1-SNAPSHOT.war
 
 Sử dụng file `QLNS_API_Collection.json` để import các API endpoints vào Postman để test.
 
-## Lưu ý
+## 🔒 Bảo mật
 
-- Ứng dụng sử dụng H2 in-memory database, dữ liệu sẽ mất khi restart
-- Security đã được disable để dễ dàng test API
-- Tất cả endpoints đều hỗ trợ CORS
-- Logging được bật để debug
+### ✅ Đã implement:
+- JWT Authentication với Bearer Token
+- BCrypt Password Hashing
+- Role-based Authorization (ADMIN, MANAGER, EMPLOYEE)
+- Password Policy (8+ chars, complex requirements)
+- Input Validation
+- CORS Configuration
+- Secure Random Password Generator
 
-## Phát triển thêm
+### 🔐 Phân quyền:
+- **ADMIN**: Quản lý tài khoản
+- **ADMIN + MANAGER**: Quản lý nhân viên, phòng ban, chức vụ, hợp đồng, lương, đánh giá
+- **ALL**: Chấm công, nghỉ phép
 
-Để phát triển thêm ứng dụng, bạn có thể:
-1. Thêm validation cho các input
-2. Implement authentication và authorization
-3. Thêm unit tests
-4. Tích hợp với database thật (MySQL, PostgreSQL)
-5. Thêm frontend (React, Vue, Angular)
-6. Deploy lên cloud (AWS, Azure, GCP)
+## 🧪 Testing
+
+### Postman:
+```bash
+# Import collection
+Import file: QLNS_Postman_Collection.json
+```
+
+### Frontend Demo:
+```bash
+# Mở trong browser
+start frontend-demo.html
+```
+
+### Unit Tests:
+```bash
+mvn test
+```
+
+## 📦 Deployment
+
+### Development:
+```bash
+mvn spring-boot:run
+```
+
+### Production:
+```bash
+java -jar QLNS.war --spring.profiles.active=prod
+```
+
+Xem chi tiết: [SETUP_GUIDE.md](SETUP_GUIDE.md)
+
+## 📞 Hỗ trợ
+
+- Xem [API_GUIDE.md](API_GUIDE.md) để biết chi tiết API
+- Xem [SETUP_GUIDE.md](SETUP_GUIDE.md) để troubleshooting
+- Test với Postman Collection để debug
+
+---
+**Built with ❤️ using Spring Boot 3.5.6**
+
+
+
+
 

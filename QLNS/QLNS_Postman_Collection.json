@@ -1,0 +1,1396 @@
+{
+	"info": {
+		"_postman_id": "qlns-api-collection",
+		"name": "QLNS API Collection",
+		"description": "🏢 **Hệ thống Quản Lý Nhân Sự (QLNS)**\n\n### 🚀 Hướng dẫn sử dụng:\n1. **Import Collection** này vào Postman\n2. **Chạy Login** để lấy JWT token (tự động lưu)\n3. **Test các API** khác (token tự động thêm vào header)\n\n### 🔐 Bảo mật:\n- JWT Authentication\n- Role-based Authorization\n- Password Policy mạnh\n\n### 📚 Tài liệu:\n- API_GUIDE.md\n- SETUP_GUIDE.md\n- FRONTEND_INTEGRATION.md",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "qlns-exporter"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080/api",
+			"type": "string",
+			"description": "Base URL của QLNS API"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string",
+			"description": "JWT Token (tự động lưu sau khi login)"
+		}
+	],
+	"item": [
+		{
+			"name": "🔐 Authentication",
+			"description": "Các API xác thực: Login, Register, Change Password, Logout",
+			"item": [
+				{
+					"name": "1. Register Admin (Chạy đầu tiên)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test register success",
+									"if (pm.response.code === 200) {",
+									"    console.log('✅ Admin account created successfully!');",
+									"    console.log('👉 Now you can run Login request');",
+									"} else {",
+									"    console.log('❌ Register failed:', pm.response.json().message);",
+									"    console.log('💡 Account might already exist - try Login directly');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ten_dangnhap\": \"admin\",\n    \"mat_khau\": \"Admin@123456\",\n    \"quyen_han\": \"ADMIN\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "register"]
+						},
+						"description": "📝 **CHẠY ĐẦU TIÊN - Tạo tài khoản admin**\n\n⚠️ **QUAN TRỌNG**: Chạy request này trước khi login!\n\n### Tài khoản được tạo:\n- Username: `admin`\n- Password: `Admin@123456`\n- Role: `ADMIN`\n\n### Sau khi chạy thành công:\n1. Chạy request \"2. Login\"\n2. Token sẽ tự động lưu\n3. Test các API khác"
+					},
+					"response": []
+				},
+				{
+					"name": "2. Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Tự động lưu token sau khi login thành công",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.success && jsonData.data && jsonData.data.token) {",
+									"        pm.collectionVariables.set('token', jsonData.data.token);",
+									"        pm.environment.set('token', jsonData.data.token);",
+									"        console.log('✅ Token đã được lưu:', jsonData.data.token.substring(0, 20) + '...');",
+									"        console.log('👤 User:', jsonData.data.tenDangnhap);",
+									"        console.log('🔑 Role:', jsonData.data.quyenHan);",
+									"        console.log('🚀 Ready to test other APIs!');",
+									"    }",
+									"} else {",
+									"    console.log('❌ Login failed:', pm.response.json().message);",
+									"    console.log('💡 Make sure you ran \"1. Register Admin\" first!');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tenDangnhap\": \"admin\",\n    \"matKhau\": \"Admin@123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "🔑 **Đăng nhập hệ thống**\n\n### Yêu cầu:\n1. ✅ Đã chạy \"1. Register Admin\" thành công\n2. ✅ Backend đang chạy (port 8080)\n\n### Credentials:\n- Username: `admin`\n- Password: `Admin@123456`\n\n### Sau khi login thành công:\n- ✅ JWT Token tự động lưu\n- ✅ Có thể test tất cả API khác\n- ✅ Token tự động thêm vào header"
+					},
+					"response": [
+						{
+							"name": "Login Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"tenDangnhap\": \"admin\",\n    \"matKhau\": \"Admin@123456\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/login",
+									"host": ["{{baseUrl}}"],
+									"path": ["auth", "login"]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Đăng nhập thành công\",\n    \"data\": {\n        \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n        \"type\": \"Bearer\",\n        \"tenDangnhap\": \"admin\",\n        \"quyenHan\": \"ADMIN\",\n        \"nhanVienId\": null\n    },\n    \"timestamp\": \"2024-01-01T10:00:00\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Register New User",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ten_dangnhap\": \"newuser\",\n    \"mat_khau\": \"SecurePass123!\",\n    \"quyen_han\": \"EMPLOYEE\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "register"]
+						},
+						"description": "📝 **Đăng ký tài khoản mới**\n\n### Yêu cầu mật khẩu:\n- ✅ Ít nhất 8 ký tự\n- ✅ Có chữ hoa (A-Z)\n- ✅ Có chữ thường (a-z)\n- ✅ Có số (0-9)\n- ✅ Có ký tự đặc biệt (@$!%*?&)\n\n### Roles:\n- `ADMIN` - Toàn quyền\n- `MANAGER` - Quản lý\n- `EMPLOYEE` - Nhân viên"
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"oldPassword\": \"Admin@123456\",\n    \"newPassword\": \"NewSecurePass123!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/change-password",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "change-password"]
+						},
+						"description": "🔄 **Đổi mật khẩu**\n\n### Yêu cầu:\n- Mật khẩu cũ đúng\n- Mật khẩu mới khác mật khẩu cũ\n- Mật khẩu mới thỏa mãn policy"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/logout",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "logout"]
+						},
+						"description": "🚪 **Đăng xuất khỏi hệ thống**"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "👤 Tài Khoản (ADMIN Only)",
+			"description": "Quản lý tài khoản - Chỉ ADMIN mới có quyền truy cập",
+			"item": [
+				{
+					"name": "Get All Accounts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tai-khoan",
+							"host": ["{{baseUrl}}"],
+							"path": ["tai-khoan"]
+						},
+						"description": "📋 **Lấy danh sách tất cả tài khoản**\n\n🔴 **ADMIN Only**"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Account by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tai-khoan/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["tai-khoan", "1"]
+						},
+						"description": "👤 **Lấy thông tin tài khoản theo ID**"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ten_dangnhap\": \"manager\",\n    \"mat_khau\": \"Manager@123456\",\n    \"quyen_han\": \"MANAGER\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tai-khoan",
+							"host": ["{{baseUrl}}"],
+							"path": ["tai-khoan"]
+						},
+						"description": "➕ **Tạo tài khoản mới**\n\nChỉ ADMIN mới có thể tạo tài khoản cho người khác."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Account",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ten_dangnhap\": \"manager\",\n    \"mat_khau\": \"NewManager@123456\",\n    \"quyen_han\": \"MANAGER\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tai-khoan/2",
+							"host": ["{{baseUrl}}"],
+							"path": ["tai-khoan", "2"]
+						},
+						"description": "✏️ **Cập nhật thông tin tài khoản**"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Account",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tai-khoan/2",
+							"host": ["{{baseUrl}}"],
+							"path": ["tai-khoan", "2"]
+						},
+						"description": "🗑️ **Xóa tài khoản**\n\n⚠️ **Cẩn thận**: Không thể hoàn tác!"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Accounts with Pagination",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tai-khoan/page?page=0&size=10&sortBy=taikhoan_id&sortDir=asc",
+							"host": ["{{baseUrl}}"],
+							"path": ["tai-khoan", "page"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0",
+									"description": "Trang (bắt đầu từ 0)"
+								},
+								{
+									"key": "size",
+									"value": "10",
+									"description": "Số item mỗi trang"
+								},
+								{
+									"key": "sortBy",
+									"value": "taikhoan_id",
+									"description": "Sắp xếp theo field"
+								},
+								{
+									"key": "sortDir",
+									"value": "asc",
+									"description": "Hướng sắp xếp (asc/desc)"
+								}
+							]
+						},
+						"description": "📄 **Lấy danh sách tài khoản có phân trang**"
+					},
+					"response": []
+				},
+				{
+					"name": "Search by Username",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tai-khoan/search/ten-dang-nhap?tenDangnhap=admin",
+							"host": ["{{baseUrl}}"],
+							"path": ["tai-khoan", "search", "ten-dang-nhap"],
+							"query": [
+								{
+									"key": "tenDangnhap",
+									"value": "admin"
+								}
+							]
+						},
+						"description": "🔍 **Tìm kiếm tài khoản theo tên đăng nhập**"
+					},
+					"response": []
+				},
+				{
+					"name": "Search by Role",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tai-khoan/search/quyen-han?quyenHan=ADMIN",
+							"host": ["{{baseUrl}}"],
+							"path": ["tai-khoan", "search", "quyen-han"],
+							"query": [
+								{
+									"key": "quyenHan",
+									"value": "ADMIN",
+									"description": "ADMIN, MANAGER, EMPLOYEE"
+								}
+							]
+						},
+						"description": "🔍 **Tìm kiếm tài khoản theo quyền hạn**"
+					},
+					"response": []
+				},
+				{
+					"name": "Check Username Exists",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tai-khoan/check/ten-dang-nhap?tenDangnhap=admin",
+							"host": ["{{baseUrl}}"],
+							"path": ["tai-khoan", "check", "ten-dang-nhap"],
+							"query": [
+								{
+									"key": "tenDangnhap",
+									"value": "admin"
+								}
+							]
+						},
+						"description": "✅ **Kiểm tra tên đăng nhập đã tồn tại chưa**"
+					},
+					"response": []
+				},
+				{
+					"name": "Count All Accounts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tai-khoan/stats/count",
+							"host": ["{{baseUrl}}"],
+							"path": ["tai-khoan", "stats", "count"]
+						},
+						"description": "📊 **Đếm tổng số tài khoản**"
+					},
+					"response": []
+				},
+				{
+					"name": "Count by Role",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tai-khoan/stats/count-by-quyen-han?quyenHan=ADMIN",
+							"host": ["{{baseUrl}}"],
+							"path": ["tai-khoan", "stats", "count-by-quyen-han"],
+							"query": [
+								{
+									"key": "quyenHan",
+									"value": "ADMIN"
+								}
+							]
+						},
+						"description": "📊 **Đếm số tài khoản theo quyền hạn**"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "👥 Nhân Viên (ADMIN/MANAGER)",
+			"description": "Quản lý nhân viên - ADMIN và MANAGER có quyền truy cập",
+			"item": [
+				{
+					"name": "Get All Employees",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/nhanvien?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["nhanvien"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "📋 **Lấy danh sách nhân viên có phân trang**\n\n🟡 **ADMIN/MANAGER Only**"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Employee by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/nhanvien/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["nhanvien", "1"]
+						},
+						"description": "👤 **Lấy thông tin nhân viên theo ID**"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Employee",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ho_ten\": \"Nguyễn Văn A\",\n    \"email\": \"nguyenvana@example.com\",\n    \"so_dien_thoai\": \"0123456789\",\n    \"dia_chi\": \"123 Đường ABC, Quận 1, TP.HCM\",\n    \"gioi_tinh\": \"Nam\",\n    \"ngay_sinh\": \"1990-01-15\",\n    \"ngay_vao_lam\": \"2024-01-01\",\n    \"cccd\": \"123456789012\",\n    \"trangThai\": \"DANG_LAM_VIEC\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/nhanvien",
+							"host": ["{{baseUrl}}"],
+							"path": ["nhanvien"]
+						},
+						"description": "➕ **Tạo nhân viên mới**\n\n### Trạng thái:\n- `DANG_LAM_VIEC`\n- `NGHI_VIEC`\n- `TAM_NGHI`"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Employee",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ho_ten\": \"Nguyễn Văn A (Updated)\",\n    \"email\": \"nguyenvana.updated@example.com\",\n    \"so_dien_thoai\": \"0987654321\",\n    \"dia_chi\": \"456 Đường XYZ, Quận 2, TP.HCM\",\n    \"gioi_tinh\": \"Nam\",\n    \"ngay_sinh\": \"1990-01-15\",\n    \"ngay_vao_lam\": \"2024-01-01\",\n    \"cccd\": \"123456789012\",\n    \"trangThai\": \"DANG_LAM_VIEC\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/nhanvien/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["nhanvien", "1"]
+						},
+						"description": "✏️ **Cập nhật thông tin nhân viên**"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Employee",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/nhanvien/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["nhanvien", "1"]
+						},
+						"description": "🗑️ **Xóa nhân viên**\n\n⚠️ **Cẩn thận**: Sẽ xóa tất cả dữ liệu liên quan!"
+					},
+					"response": []
+				},
+				{
+					"name": "Search Employee by Name",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/nhanvien/search?q=Nguyễn",
+							"host": ["{{baseUrl}}"],
+							"path": ["nhanvien", "search"],
+							"query": [
+								{
+									"key": "q",
+									"value": "Nguyễn",
+									"description": "Từ khóa tìm kiếm"
+								}
+							]
+						},
+						"description": "🔍 **Tìm kiếm nhân viên theo tên**"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "🏢 Phòng Ban (ADMIN/MANAGER)",
+			"description": "Quản lý phòng ban - ADMIN và MANAGER có quyền truy cập",
+			"item": [
+				{
+					"name": "Get All Departments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/phong-ban",
+							"host": ["{{baseUrl}}"],
+							"path": ["phong-ban"]
+						},
+						"description": "🏢 **Lấy danh sách phòng ban**\n\n🟡 **ADMIN/MANAGER Only**"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Department by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/phong-ban/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["phong-ban", "1"]
+						},
+						"description": "🏢 **Lấy thông tin phòng ban theo ID**"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Department",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ten_phong_ban\": \"Phòng Công nghệ thông tin\",\n    \"mo_ta\": \"Phòng phụ trách phát triển và bảo trì hệ thống công nghệ thông tin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/phong-ban",
+							"host": ["{{baseUrl}}"],
+							"path": ["phong-ban"]
+						},
+						"description": "➕ **Tạo phòng ban mới**"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Department",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ten_phong_ban\": \"Phòng IT & Digital\",\n    \"mo_ta\": \"Phòng Công nghệ thông tin và Chuyển đổi số\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/phong-ban/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["phong-ban", "1"]
+						},
+						"description": "✏️ **Cập nhật phòng ban**"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Department",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/phong-ban/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["phong-ban", "1"]
+						},
+						"description": "🗑️ **Xóa phòng ban**\n\n⚠️ **Lưu ý**: Không thể xóa nếu còn nhân viên trong phòng ban"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "💼 Chức Vụ (ADMIN/MANAGER)",
+			"description": "Quản lý chức vụ - ADMIN và MANAGER có quyền truy cập",
+			"item": [
+				{
+					"name": "Get All Positions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/chuc-vu",
+							"host": ["{{baseUrl}}"],
+							"path": ["chuc-vu"]
+						},
+						"description": "💼 **Lấy danh sách chức vụ**\n\n🟡 **ADMIN/MANAGER Only**"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Position by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/chuc-vu/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["chuc-vu", "1"]
+						},
+						"description": "💼 **Lấy thông tin chức vụ theo ID**"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Position",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ten_chuc_vu\": \"Trưởng phòng IT\",\n    \"mo_ta\": \"Quản lý và điều hành hoạt động của phòng Công nghệ thông tin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/chuc-vu",
+							"host": ["{{baseUrl}}"],
+							"path": ["chuc-vu"]
+						},
+						"description": "➕ **Tạo chức vụ mới**"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Position",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ten_chuc_vu\": \"Giám đốc IT\",\n    \"mo_ta\": \"Giám đốc Công nghệ thông tin - Quản lý toàn bộ hệ thống IT\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/chuc-vu/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["chuc-vu", "1"]
+						},
+						"description": "✏️ **Cập nhật chức vụ**"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Position",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/chuc-vu/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["chuc-vu", "1"]
+						},
+						"description": "🗑️ **Xóa chức vụ**"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "📄 Hợp Đồng (ADMIN/MANAGER)",
+			"description": "Quản lý hợp đồng lao động",
+			"item": [
+				{
+					"name": "Get All Contracts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/hop-dong",
+							"host": ["{{baseUrl}}"],
+							"path": ["hop-dong"]
+						},
+						"description": "📄 **Lấy danh sách hợp đồng**"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Contract by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/hop-dong/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["hop-dong", "1"]
+						},
+						"description": "📄 **Lấy thông tin hợp đồng theo ID**"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Contract",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"loai_hop_dong\": \"Hợp đồng lao động chính thức\",\n    \"ngay_bat_dau\": \"2024-01-01\",\n    \"ngay_ket_thuc\": \"2025-12-31\",\n    \"luong_co_ban\": 15000000,\n    \"nhanVien\": {\n        \"nhanvien_id\": 1\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/hop-dong",
+							"host": ["{{baseUrl}}"],
+							"path": ["hop-dong"]
+						},
+						"description": "➕ **Tạo hợp đồng mới**\n\n### Loại hợp đồng:\n- Hợp đồng thử việc\n- Hợp đồng có thời hạn\n- Hợp đồng không thời hạn\n- Hợp đồng thời vụ"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Contract",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"loai_hop_dong\": \"Hợp đồng lao động chính thức\",\n    \"ngay_bat_dau\": \"2024-01-01\",\n    \"ngay_ket_thuc\": \"2026-12-31\",\n    \"luong_co_ban\": 18000000\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/hop-dong/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["hop-dong", "1"]
+						},
+						"description": "✏️ **Cập nhật hợp đồng**"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Contract",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/hop-dong/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["hop-dong", "1"]
+						},
+						"description": "🗑️ **Xóa hợp đồng**"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "⏰ Chấm Công (ALL)",
+			"description": "Quản lý chấm công - Tất cả user đã đăng nhập đều có quyền",
+			"item": [
+				{
+					"name": "Get All Attendance",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/cham-cong",
+							"host": ["{{baseUrl}}"],
+							"path": ["cham-cong"]
+						},
+						"description": "⏰ **Lấy danh sách chấm công**\n\n🟢 **ALL Users**"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Attendance by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/cham-cong/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["cham-cong", "1"]
+						},
+						"description": "⏰ **Lấy thông tin chấm công theo ID**"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Attendance",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ngay\": \"2024-01-15\",\n    \"gio_vao\": \"08:00:00\",\n    \"gio_ra\": \"17:30:00\",\n    \"trang_thai\": \"Đi làm\",\n    \"nhanVien\": {\n        \"nhanvien_id\": 1\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/cham-cong",
+							"host": ["{{baseUrl}}"],
+							"path": ["cham-cong"]
+						},
+						"description": "➕ **Tạo bản ghi chấm công**\n\n### Trạng thái:\n- `Đi làm`\n- `Nghỉ có phép`\n- `Nghỉ không phép`\n- `Đi muộn`\n- `Về sớm`"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Attendance",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ngay\": \"2024-01-15\",\n    \"gio_vao\": \"08:15:00\",\n    \"gio_ra\": \"17:30:00\",\n    \"trang_thai\": \"Đi muộn\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/cham-cong/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["cham-cong", "1"]
+						},
+						"description": "✏️ **Cập nhật bản ghi chấm công**"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Attendance",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/cham-cong/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["cham-cong", "1"]
+						},
+						"description": "🗑️ **Xóa bản ghi chấm công**"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "💰 Bảng Lương (ADMIN/MANAGER)",
+			"description": "Quản lý lương - ADMIN và MANAGER có quyền truy cập",
+			"item": [
+				{
+					"name": "Get All Salaries",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bang-luong",
+							"host": ["{{baseUrl}}"],
+							"path": ["bang-luong"]
+						},
+						"description": "💰 **Lấy danh sách bảng lương**\n\n🟡 **ADMIN/MANAGER Only**"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Salary by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bang-luong/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["bang-luong", "1"]
+						},
+						"description": "💰 **Lấy thông tin bảng lương theo ID**"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Salary",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"thang\": 1,\n    \"nam\": 2024,\n    \"luong_co_ban\": 15000000,\n    \"phu_cap\": 2000000,\n    \"thuong\": 1000000,\n    \"khau_tru\": 500000,\n    \"tong_luong\": 17500000,\n    \"nhanVien\": {\n        \"nhanvien_id\": 1\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bang-luong",
+							"host": ["{{baseUrl}}"],
+							"path": ["bang-luong"]
+						},
+						"description": "➕ **Tạo bảng lương mới**\n\n### Thành phần lương:\n- Lương cơ bản\n- Phụ cấp (ăn trưa, xăng xe, điện thoại...)\n- Thưởng (KPI, dự án, lễ tết...)\n- Khấu trừ (BHXH, BHYT, thuế...)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Salary",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"thang\": 1,\n    \"nam\": 2024,\n    \"luong_co_ban\": 15000000,\n    \"phu_cap\": 2500000,\n    \"thuong\": 1500000,\n    \"khau_tru\": 600000,\n    \"tong_luong\": 18400000\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bang-luong/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["bang-luong", "1"]
+						},
+						"description": "✏️ **Cập nhật bảng lương**"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Salary",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bang-luong/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["bang-luong", "1"]
+						},
+						"description": "🗑️ **Xóa bảng lương**"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "⭐ Đánh Giá (ADMIN/MANAGER)",
+			"description": "Đánh giá hiệu suất nhân viên",
+			"item": [
+				{
+					"name": "Get All Reviews",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/danh-gia",
+							"host": ["{{baseUrl}}"],
+							"path": ["danh-gia"]
+						},
+						"description": "⭐ **Lấy danh sách đánh giá**\n\n🟡 **ADMIN/MANAGER Only**"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Review by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/danh-gia/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["danh-gia", "1"]
+						},
+						"description": "⭐ **Lấy thông tin đánh giá theo ID**"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Review",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ky_danh_gia\": \"Q1/2024\",\n    \"diem_so\": 8.5,\n    \"nhan_xet\": \"Nhân viên làm việc tích cực, có trách nhiệm. Hoàn thành tốt các nhiệm vụ được giao. Cần cải thiện kỹ năng giao tiếp với khách hàng.\",\n    \"nhanVien\": {\n        \"nhanvien_id\": 1\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/danh-gia",
+							"host": ["{{baseUrl}}"],
+							"path": ["danh-gia"]
+						},
+						"description": "➕ **Tạo đánh giá mới**\n\n### Thang điểm:\n- 9.0 - 10.0: Xuất sắc\n- 8.0 - 8.9: Tốt\n- 7.0 - 7.9: Khá\n- 6.0 - 6.9: Trung bình\n- < 6.0: Yếu"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Review",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ky_danh_gia\": \"Q1/2024\",\n    \"diem_so\": 9.0,\n    \"nhan_xet\": \"Nhân viên làm việc xuất sắc, có nhiều đóng góp tích cực cho team. Kỹ năng chuyên môn tốt, thái độ làm việc nghiêm túc.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/danh-gia/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["danh-gia", "1"]
+						},
+						"description": "✏️ **Cập nhật đánh giá**"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Review",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/danh-gia/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["danh-gia", "1"]
+						},
+						"description": "🗑️ **Xóa đánh giá**"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "🏖️ Nghỉ Phép (ALL)",
+			"description": "Quản lý nghỉ phép - Tất cả user đã đăng nhập đều có quyền",
+			"item": [
+				{
+					"name": "Get All Leaves",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/nghi-phep",
+							"host": ["{{baseUrl}}"],
+							"path": ["nghi-phep"]
+						},
+						"description": "🏖️ **Lấy danh sách nghỉ phép**\n\n🟢 **ALL Users**"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Leave by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/nghi-phep/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["nghi-phep", "1"]
+						},
+						"description": "🏖️ **Lấy thông tin nghỉ phép theo ID**"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Leave",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ngay_bat_dau\": \"2024-02-01\",\n    \"ngay_ket_thuc\": \"2024-02-03\",\n    \"ly_do\": \"Nghỉ phép năm - Du lịch cùng gia đình\",\n    \"trang_thai\": \"Chờ duyệt\",\n    \"nhanVien\": {\n        \"nhanvien_id\": 1\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/nghi-phep",
+							"host": ["{{baseUrl}}"],
+							"path": ["nghi-phep"]
+						},
+						"description": "➕ **Tạo đơn nghỉ phép**\n\n### Trạng thái:\n- `Chờ duyệt`\n- `Đã duyệt`\n- `Từ chối`\n- `Đã hủy`\n\n### Loại nghỉ phép:\n- Nghỉ phép năm\n- Nghỉ ốm\n- Nghỉ thai sản\n- Nghỉ cưới\n- Nghỉ tang"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Leave",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ngay_bat_dau\": \"2024-02-01\",\n    \"ngay_ket_thuc\": \"2024-02-03\",\n    \"ly_do\": \"Nghỉ phép năm - Du lịch cùng gia đình\",\n    \"trang_thai\": \"Đã duyệt\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/nghi-phep/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["nghi-phep", "1"]
+						},
+						"description": "✏️ **Cập nhật đơn nghỉ phép** (Thường là thay đổi trạng thái duyệt)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Leave",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/nghi-phep/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["nghi-phep", "1"]
+						},
+						"description": "🗑️ **Xóa đơn nghỉ phép**"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global pre-request script",
+					"console.log('🚀 QLNS API Request:', pm.info.requestName);",
+					"",
+					"// Check if token exists for protected endpoints",
+					"const url = pm.request.url.toString();",
+					"const isAuthEndpoint = url.includes('/auth/');",
+					"const token = pm.collectionVariables.get('token');",
+					"",
+					"if (!isAuthEndpoint && !token) {",
+					"    console.log('⚠️ Warning: No token found. Please login first!');",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global test script",
+					"const responseTime = pm.response.responseTime;",
+					"const statusCode = pm.response.code;",
+					"",
+					"console.log(`📊 Response: ${statusCode} (${responseTime}ms)`);",
+					"",
+					"// Basic tests for all requests",
+					"pm.test('Response time is less than 5000ms', function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+					"});",
+					"",
+					"pm.test('Response has valid JSON', function () {",
+					"    pm.response.to.have.jsonBody();",
+					"});",
+					"",
+					"// Test for API response format",
+					"if (pm.response.code === 200) {",
+					"    pm.test('Response has success field', function () {",
+					"        const jsonData = pm.response.json();",
+					"        pm.expect(jsonData).to.have.property('success');",
+					"    });",
+					"}"
+				]
+			}
+		}
+	]
+}

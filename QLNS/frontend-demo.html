@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QLNS - Demo Frontend</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 { 
+            color: #667eea; 
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .form-group { 
+            margin-bottom: 20px; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            color: #333;
+            font-weight: 500;
+        }
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #e1e8ed;
+            border-radius: 8px; 
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button { 
+            width: 100%; 
+            padding: 14px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .message { 
+            padding: 12px; 
+            margin-top: 20px; 
+            border-radius: 8px; 
+            display: none;
+        }
+        .message.success { 
+            background: #d4edda; 
+            color: #155724; 
+            border: 1px solid #c3e6cb;
+        }
+        .message.error { 
+            background: #f8d7da; 
+            color: #721c24; 
+            border: 1px solid #f5c6cb;
+        }
+        .dashboard { 
+            display: none; 
+        }
+        .user-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .user-info p {
+            margin: 5px 0;
+            color: #333;
+        }
+        .user-info strong {
+            color: #667eea;
+        }
+        .btn-logout {
+            background: #dc3545;
+            margin-top: 10px;
+        }
+        .api-result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .api-result pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Form -->
+        <div id="loginForm">
+            <h1>🔐 QLNS Login</h1>
+            <p class="subtitle">Demo tích hợp Frontend với Backend API</p>
+            
+            <div class="form-group">
+                <label>Tên đăng nhập:</label>
+                <input type="text" id="username" placeholder="Nhập tên đăng nhập" value="admin">
+            </div>
+            
+            <div class="form-group">
+                <label>Mật khẩu:</label>
+                <input type="password" id="password" placeholder="Nhập mật khẩu">
+                <small style="color: #666; font-size: 12px;">
+                    💡 Xem mật khẩu trong console khi start backend
+                </small>
+            </div>
+            
+            <button onclick="login()">Đăng nhập</button>
+            
+            <div id="loginMessage" class="message"></div>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="dashboard">
+            <h1>📊 Dashboard</h1>
+            
+            <div class="user-info">
+                <p><strong>Username:</strong> <span id="userUsername"></span></p>
+                <p><strong>Quyền hạn:</strong> <span id="userRole"></span></p>
+                <p><strong>Token:</strong> <span id="userToken" style="font-size: 10px; word-break: break-all;"></span></p>
+            </div>
+
+            <button onclick="getNhanVien()">📋 Lấy danh sách nhân viên</button>
+            <button onclick="getPhongBan()">🏢 Lấy danh sách phòng ban</button>
+            <button onclick="getChamCong()">⏰ Lấy danh sách chấm công</button>
+            <button class="btn-logout" onclick="logout()">🚪 Đăng xuất</button>
+
+            <div id="apiResult" class="api-result" style="display: none;">
+                <h3>Kết quả API:</h3>
+                <pre id="resultContent"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/api';
+
+        // Kiểm tra đã đăng nhập chưa
+        window.onload = function() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                showDashboard();
+            }
+        };
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('loginMessage');
+
+            if (!username || !password) {
+                showMessage('Vui lòng nhập đầy đủ thông tin!', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        tenDangnhap: username,
+                        matKhau: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Lưu thông tin vào localStorage
+                    localStorage.setItem('token', data.data.token);
+                    localStorage.setItem('username', data.data.tenDangnhap);
+                    localStorage.setItem('quyenHan', data.data.quyenHan);
+
+                    showMessage('Đăng nhập thành công!', 'success');
+                    setTimeout(showDashboard, 1000);
+                } else {
+                    showMessage(data.message || 'Đăng nhập thất bại!', 'error');
+                }
+            } catch (error) {
+                showMessage('Lỗi kết nối: ' + error.message, 'error');
+                console.error('Error:', error);
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            
+            // Hiển thị thông tin user
+            document.getElementById('userUsername').textContent = localStorage.getItem('username');
+            document.getElementById('userRole').textContent = localStorage.getItem('quyenHan');
+            document.getElementById('userToken').textContent = localStorage.getItem('token').substring(0, 50) + '...';
+        }
+
+        function logout() {
+            localStorage.clear();
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('apiResult').style.display = 'none';
+            document.getElementById('password').value = '';
+        }
+
+        async function callAPI(endpoint) {
+            const token = localStorage.getItem('token');
+            const resultDiv = document.getElementById('apiResult');
+            const resultContent = document.getElementById('resultContent');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                resultDiv.style.display = 'block';
+                resultContent.textContent = JSON.stringify(data, null, 2);
+                
+                if (!response.ok) {
+                    alert('Lỗi: ' + (data.message || 'Không thể lấy dữ liệu'));
+                }
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                resultContent.textContent = 'Lỗi: ' + error.message;
+                console.error('Error:', error);
+            }
+        }
+
+        function getNhanVien() {
+            callAPI('/nhanvien?page=0&size=10');
+        }
+
+        function getPhongBan() {
+            callAPI('/phong-ban');
+        }
+
+        function getChamCong() {
+            callAPI('/cham-cong');
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('loginMessage');
+            messageDiv.textContent = message;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
+
+

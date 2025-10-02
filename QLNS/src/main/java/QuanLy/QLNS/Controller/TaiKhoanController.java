@@ -10,10 +10,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import QuanLy.QLNS.Entity.TaiKhoan;
 import QuanLy.QLNS.Service.TaiKhoanService;
+import QuanLy.QLNS.dto.ApiResponse;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/tai-khoan")
@@ -23,18 +26,28 @@ public class TaiKhoanController {
     @Autowired
     private TaiKhoanService taiKhoanService;
     
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    
     // Tạo tài khoản mới
     @PostMapping
-    public ResponseEntity<TaiKhoan> createTaiKhoan(@RequestBody TaiKhoan taiKhoan) {
+    public ResponseEntity<ApiResponse<TaiKhoan>> createTaiKhoan(@Valid @RequestBody TaiKhoan taiKhoan) {
         try {
             // Kiểm tra tên đăng nhập đã tồn tại chưa
             if (taiKhoanService.existsByTenDangnhap(taiKhoan.getTen_dangnhap())) {
-                return ResponseEntity.badRequest().build();
+                return ResponseEntity.badRequest()
+                        .body(ApiResponse.error("Tên đăng nhập đã tồn tại"));
             }
+            
+            // Mã hóa mật khẩu
+            taiKhoan.setMat_khau(passwordEncoder.encode(taiKhoan.getMat_khau()));
+            
             TaiKhoan savedTaiKhoan = taiKhoanService.save(taiKhoan);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedTaiKhoan);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success("Tạo tài khoản thành công", savedTaiKhoan));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Tạo tài khoản thất bại: " + e.getMessage()));
         }
     }
     
@@ -129,4 +142,7 @@ public class TaiKhoanController {
         return ResponseEntity.ok(count);
     }
 }
+
+
+
 

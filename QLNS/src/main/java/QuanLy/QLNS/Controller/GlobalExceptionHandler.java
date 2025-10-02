@@ -1,45 +1,61 @@
 package QuanLy.QLNS.Controller;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import QuanLy.QLNS.dto.ApiResponse;
+
+import java.util.HashMap;
+import java.util.Map;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-	@ExceptionHandler(IllegalArgumentException.class)
-	public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
-		Map<String, Object> body = new HashMap<>();
-		body.put("timestamp", LocalDateTime.now());
-		body.put("error", "Bad Request");
-		body.put("message", ex.getMessage());
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationExceptions(
+			MethodArgumentNotValidException ex) {
+		Map<String, String> errors = new HashMap<>();
+		ex.getBindingResult().getAllErrors().forEach((error) -> {
+			String fieldName = ((FieldError) error).getField();
+			String errorMessage = error.getDefaultMessage();
+			errors.put(fieldName, errorMessage);
+		});
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.error("Dữ liệu không hợp lệ", errors));
 	}
 
-	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
-		Map<String, Object> body = new HashMap<>();
-		body.put("timestamp", LocalDateTime.now());
-		body.put("error", "Validation Failed");
-		body.put("message", ex.getBindingResult().toString());
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+	@ExceptionHandler(AccessDeniedException.class)
+	public ResponseEntity<ApiResponse<String>> handleAccessDeniedException(AccessDeniedException e) {
+		return ResponseEntity.status(HttpStatus.FORBIDDEN)
+				.body(ApiResponse.error("Bạn không có quyền truy cập tài nguyên này"));
+	}
+
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<ApiResponse<String>> handleIllegalArgumentException(IllegalArgumentException e) {
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.error(e.getMessage()));
+	}
+
+	@ExceptionHandler(RuntimeException.class)
+	public ResponseEntity<ApiResponse<String>> handleRuntimeException(RuntimeException e) {
+		return ResponseEntity.badRequest()
+				.body(ApiResponse.error(e.getMessage()));
 	}
 
 	@ExceptionHandler(Exception.class)
-	public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
-		Map<String, Object> body = new HashMap<>();
-		body.put("timestamp", LocalDateTime.now());
-		body.put("error", "Internal Server Error");
-		body.put("message", ex.getMessage());
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+	public ResponseEntity<ApiResponse<String>> handleException(Exception e) {
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+				.body(ApiResponse.error("Đã xảy ra lỗi hệ thống: " + e.getMessage()));
 	}
 }
+
+
+
 
 
 
