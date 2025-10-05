@@ -72,6 +72,11 @@ public class NghiPhepServiceImpl implements NghiPhepService {
 	public List<NghiPhep> findByTrangThai(String trangThai) {
 		return repository.findByTrangThai(trangThai);
 	}
+
+	@Override
+	public Page<NghiPhep> findByTrangThai(String trangThai, Pageable pageable) {
+		return repository.findByTrangThai(trangThai, pageable);
+	}
 }
 
 

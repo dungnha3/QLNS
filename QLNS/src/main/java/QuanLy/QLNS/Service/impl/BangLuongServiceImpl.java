@@ -46,7 +46,6 @@ public class BangLuongServiceImpl implements BangLuongService {
 		existing.setKhau_tru(bangLuong.getKhau_tru());
 		existing.setLuong_co_ban(bangLuong.getLuong_co_ban());
 		existing.setPhu_cap(bangLuong.getPhu_cap());
-		existing.setThang_nam(bangLuong.getThang_nam());
 		existing.setThuc_lanh(bangLuong.getThuc_lanh());
 		existing.setTong_cong(bangLuong.getTong_cong());
 		existing.setThang(bangLuong.getThang());
@@ -77,6 +76,11 @@ public class BangLuongServiceImpl implements BangLuongService {
 	@Override
 	public List<BangLuong> findByTrangThai(String trangThai) {
 		return repository.findByTrangThai(trangThai);
+	}
+
+	@Override
+	public Page<BangLuong> findByTrangThai(String trangThai, Pageable pageable) {
+		return repository.findByTrangThai(trangThai, pageable);
 	}
 }
 

@@ -38,10 +38,10 @@ mvn clean install
 mvn spring-boot:run
 ```
 
-Hoặc build thành file WAR:
+Hoặc build thành file JAR:
 ```bash
 mvn clean package
-java -jar target/QLNS-0.0.1-SNAPSHOT.war
+java -jar target/QLNS-0.0.1-SNAPSHOT.jar
 ```
 
 ## 2️⃣ TẠO TÀI KHOẢN ADMIN ĐẦU TIÊN

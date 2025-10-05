@@ -2,6 +2,8 @@ package QuanLy.QLNS.Repository;
 
 import QuanLy.QLNS.Entity.NghiPhep;
 import QuanLy.QLNS.Entity.NhanVien;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,6 +20,9 @@ public interface NghiPhepRepository extends JpaRepository<NghiPhep, Long> {
     // Tìm theo trạng thái
     @Query("SELECT n FROM NghiPhep n WHERE n.trangThai = :trangThai")
     List<NghiPhep> findByTrangThai(@Param("trangThai") String trangThai);
+
+    @Query("SELECT n FROM NghiPhep n WHERE n.trangThai = :trangThai")
+    Page<NghiPhep> findByTrangThai(@Param("trangThai") String trangThai, Pageable pageable);
     
     // Tìm đơn chờ duyệt
     @Query("SELECT n FROM NghiPhep n WHERE n.trangThai = 'CHO_DUYET' ORDER BY n.ngayTao ASC")

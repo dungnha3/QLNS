@@ -2,6 +2,8 @@ package QuanLy.QLNS.Repository;
 
 import QuanLy.QLNS.Entity.BangLuong;
 import QuanLy.QLNS.Entity.NhanVien;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,6 +26,9 @@ public interface BangLuongRepository extends JpaRepository<BangLuong, Long> {
     // Tìm theo trạng thái
     @Query("SELECT b FROM BangLuong b WHERE b.trangThai = :trangThai")
     List<BangLuong> findByTrangThai(@Param("trangThai") String trangThai);
+
+    @Query("SELECT b FROM BangLuong b WHERE b.trangThai = :trangThai")
+    Page<BangLuong> findByTrangThai(@Param("trangThai") String trangThai, Pageable pageable);
     
     // Tìm bảng lương chưa thanh toán
     @Query("SELECT b FROM BangLuong b WHERE b.trangThai IN ('CHO_DUYET', 'DA_DUYET')")

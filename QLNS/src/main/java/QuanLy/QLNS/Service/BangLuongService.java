@@ -24,6 +24,8 @@ public interface BangLuongService {
 	List<BangLuong> findByNhanVien(NhanVien nhanVien);
 
 	List<BangLuong> findByTrangThai(String trangThai);
+
+    Page<BangLuong> findByTrangThai(String trangThai, Pageable pageable);
 }
 
 

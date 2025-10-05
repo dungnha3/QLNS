@@ -34,20 +34,18 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 // Public endpoints
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/h2-console/**").permitAll()
                 // Admin only endpoints
                 .requestMatchers("/api/tai-khoan/**").hasRole("ADMIN")
                 // Manager and Admin endpoints
-                .requestMatchers("/api/nhanvien/**", "/api/phong-ban/**", "/api/chuc-vu/**").hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers("/api/nhanvien/**", "/api/phongban/**", "/api/chucvu/**").hasAnyRole("ADMIN", "MANAGER")
                 // Employee endpoints (all authenticated users)
-                .requestMatchers("/api/cham-cong/**", "/api/nghi-phep/**").hasAnyRole("ADMIN", "MANAGER", "EMPLOYEE")
+                .requestMatchers("/api/chamcong/**", "/api/nghiphep/**", "/api/bangluong/**", "/api/hopdong/**", "/api/danhgia/**").hasAnyRole("ADMIN", "MANAGER", "EMPLOYEE")
                 // All other requests need authentication
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
             
-        // For H2 Console
-        http.headers(headers -> headers.frameOptions().disable());
+        // Remove H2 Console exposure (not used)
         
         return http.build();
     }

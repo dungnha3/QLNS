@@ -18,23 +18,22 @@ public class BangLuong {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long bangluong_id;
     
-    @Column(nullable = false, length = 100)
-    private String khau_tru;
+    @Column(name = "khau_tru", precision = 15, scale = 2)
+    private BigDecimal khau_tru;
     
-    @Column(nullable = false, length = 200)
-    private String luong_co_ban;
+    @Column(name = "luong_co_ban", precision = 15, scale = 2)
+    private BigDecimal luong_co_ban;
     
-    @Column(nullable = false, length = 100)
-    private String phu_cap;
+    @Column(name = "phu_cap", precision = 15, scale = 2)
+    private BigDecimal phu_cap;
     
-    @Column(nullable = false)
-    private Integer thang_nam;
+    // removed redundant thang_nam
     
-    @Column(nullable = false, length = 100)
-    private String thuc_lanh;
+    @Column(name = "thuc_lanh", precision = 15, scale = 2)
+    private BigDecimal thuc_lanh;
     
-    @Column(nullable = false, length = 100)
-    private String tong_cong;
+    @Column(name = "tong_cong", precision = 15, scale = 2)
+    private BigDecimal tong_cong;
     
     @Column(name = "thang", nullable = false)
     private Integer thang;

@@ -24,6 +24,8 @@ public interface NghiPhepService {
 	List<NghiPhep> findByNhanVien(NhanVien nhanVien);
 
 	List<NghiPhep> findByTrangThai(String trangThai);
+
+    Page<NghiPhep> findByTrangThai(String trangThai, Pageable pageable);
 }
 
 

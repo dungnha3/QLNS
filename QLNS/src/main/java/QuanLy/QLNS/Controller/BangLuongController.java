@@ -1,7 +1,6 @@
 package QuanLy.QLNS.Controller;
 
 import java.net.URI;
-import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,12 +29,16 @@ public class BangLuongController {
 		this.service = service;
 	}
 
-	@GetMapping
-	public ResponseEntity<Page<BangLuong>> list(@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int size) {
-		Pageable pageable = PageRequest.of(page, size);
-		return ResponseEntity.ok(service.getAll(pageable));
-	}
+    @GetMapping
+    public ResponseEntity<Page<BangLuong>> list(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String trangThai) {
+        Pageable pageable = PageRequest.of(page, size);
+        if (trangThai != null && !trangThai.isBlank()) {
+            return ResponseEntity.ok(service.findByTrangThai(trangThai, pageable));
+        }
+        return ResponseEntity.ok(service.getAll(pageable));
+    }
 
 	@GetMapping("/{id}")
 	public ResponseEntity<BangLuong> get(@PathVariable Long id) {
@@ -59,10 +62,7 @@ public class BangLuongController {
 		return ResponseEntity.noContent().build();
 	}
 
-	@GetMapping("/by-trang-thai")
-	public ResponseEntity<List<BangLuong>> byTrangThai(@RequestParam String trangThai) {
-		return ResponseEntity.ok(service.findByTrangThai(trangThai));
-	}
+    // merged into list via query param 'trangThai'
 }
 
 

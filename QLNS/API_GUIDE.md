@@ -4,14 +4,8 @@
 
 Hệ thống sử dụng JWT (JSON Web Token) để xác thực người dùng.
 
-### 🔐 Tài khoản mặc định (CHỈ TRONG DEVELOPMENT):
-⚠️ **CẢNH BÁO**: Tài khoản mặc định chỉ được tạo trong môi trường development với mật khẩu ngẫu nhiên mạnh.
-
-- **Admin**: `admin` / `<mật khẩu ngẫu nhiên hiển thị khi khởi động>`
-- **Manager**: `manager` / `<mật khẩu ngẫu nhiên hiển thị khi khởi động>`  
-- **Employee**: `employee` / `<mật khẩu ngẫu nhiên hiển thị khi khởi động>`
-
-🚨 **PRODUCTION**: Không có tài khoản mặc định. Phải tạo tài khoản admin đầu tiên qua API.
+### 🔐 Tạo tài khoản đầu tiên:
+⚠️ **LƯU Ý**: Hệ thống không có tài khoản mặc định vì lý do bảo mật. Bạn cần tạo tài khoản admin đầu tiên qua API đăng ký (xem bên dưới).
 
 ## 📝 API Endpoints
 
@@ -24,7 +18,7 @@ Content-Type: application/json
 
 {
     "tenDangnhap": "admin",
-    "matKhau": "<mật khẩu từ console khi khởi động>"
+    "matKhau": "Admin@123456"
 }
 ```
 
@@ -78,6 +72,7 @@ Content-Type: application/json
 POST /api/auth/logout
 Authorization: Bearer <your-jwt-token>
 ```
+**Lưu ý**: Vì JWT là stateless, logout chỉ cần xóa token ở client (localStorage/sessionStorage). Endpoint này không thực hiện blacklist token.
 
 ### 2. Sử dụng Token
 
@@ -94,15 +89,15 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 #### 🟡 ADMIN + MANAGER:
 - `/api/nhanvien/**` - Quản lý nhân viên
-- `/api/phong-ban/**` - Quản lý phòng ban
-- `/api/chuc-vu/**` - Quản lý chức vụ
-- `/api/hop-dong/**` - Quản lý hợp đồng
-- `/api/bang-luong/**` - Quản lý lương
-- `/api/danh-gia/**` - Quản lý đánh giá
+- `/api/phongban/**` - Quản lý phòng ban
+- `/api/chucvu/**` - Quản lý chức vụ
 
-#### 🟢 ALL AUTHENTICATED:
-- `/api/cham-cong/**` - Chấm công
-- `/api/nghi-phep/**` - Nghỉ phép
+#### 🟢 ALL AUTHENTICATED (ADMIN + MANAGER + EMPLOYEE):
+- `/api/chamcong/**` - Chấm công
+- `/api/nghiphep/**` - Nghỉ phép
+- `/api/bangluong/**` - Quản lý lương
+- `/api/hopdong/**` - Quản lý hợp đồng
+- `/api/danhgia/**` - Quản lý đánh giá
 
 ## 🧪 Test với Postman
 
