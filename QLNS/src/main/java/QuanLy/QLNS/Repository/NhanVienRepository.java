@@ -47,6 +47,9 @@ public interface NhanVienRepository extends JpaRepository<NhanVien, Long> {
     // Đếm nhân viên theo phòng ban
     long countByPhongBan(PhongBan phongBan);
     
+    // Đếm nhân viên theo trạng thái
+    long countByTrangThai(String trangThai);
+    
     // Tìm nhân viên vào làm trong khoảng thời gian
     @Query("SELECT n FROM NhanVien n WHERE n.ngay_vao_lam BETWEEN :startDate AND :endDate")
     List<NhanVien> findByNgayVaoLamBetween(@Param("startDate") LocalDate startDate, 

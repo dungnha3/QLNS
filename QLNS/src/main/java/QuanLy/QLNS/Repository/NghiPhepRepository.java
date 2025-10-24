@@ -56,4 +56,7 @@ public interface NghiPhepRepository extends JpaRepository<NghiPhep, Long> {
     // Tìm đơn nghỉ theo người duyệt
     @Query("SELECT n FROM NghiPhep n WHERE n.nguoiDuyet = :nguoiDuyet")
     List<NghiPhep> findByNguoiDuyet(@Param("nguoiDuyet") NhanVien nguoiDuyet);
+    
+    // Đếm đơn nghỉ phép theo trạng thái
+    long countByTrangThai(String trangThai);
 }

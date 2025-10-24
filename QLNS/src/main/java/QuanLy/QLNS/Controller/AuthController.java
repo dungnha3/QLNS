@@ -1,6 +1,5 @@
 package QuanLy.QLNS.Controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -20,17 +19,18 @@ import jakarta.validation.Valid;
 @CrossOrigin(origins = "*")
 public class AuthController {
     
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
+    private final TaiKhoanService taiKhoanService;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
     
-    @Autowired
-    private TaiKhoanService taiKhoanService;
-    
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    
-    @Autowired
-    private JwtUtil jwtUtil;
+    public AuthController(AuthService authService, TaiKhoanService taiKhoanService,
+                         PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+        this.authService = authService;
+        this.taiKhoanService = taiKhoanService;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+    }
     
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest loginRequest) {

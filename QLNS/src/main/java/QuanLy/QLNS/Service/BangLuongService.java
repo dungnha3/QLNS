@@ -26,6 +26,15 @@ public interface BangLuongService {
 	List<BangLuong> findByTrangThai(String trangThai);
 
     Page<BangLuong> findByTrangThai(String trangThai, Pageable pageable);
+    
+    /**
+     * Tính lương tự động cho nhân viên theo tháng
+     * @param nhanVienId ID nhân viên
+     * @param thang Tháng tính lương (1-12)
+     * @param nam Năm tính lương
+     * @return BangLuong đã được tính toán
+     */
+    BangLuong tinhLuongTuDong(Long nhanVienId, int thang, int nam);
 }
 
 

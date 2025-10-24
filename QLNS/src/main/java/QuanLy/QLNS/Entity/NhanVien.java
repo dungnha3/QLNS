@@ -1,6 +1,7 @@
 package QuanLy.QLNS.Entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,27 +22,39 @@ public class NhanVien {
     private Long nhanvien_id;
     
     @Column(nullable = false, length = 100)
+    @NotBlank(message = "Địa chỉ không được để trống")
     private String dia_chi;
     
     @Column(nullable = false, unique = true, length = 100)
+    @NotBlank(message = "Email không được để trống")
+    @Email(message = "Email không đúng định dạng")
     private String email;
     
     @Column(nullable = false, length = 10)
-    private String gioi_tinh; // Nam, Nữ, Khác
+    @NotBlank(message = "Giới tính không được để trống")
+    @Pattern(regexp = "Nam|Nữ|Khác", message = "Giới tính phải là Nam, Nữ hoặc Khác")
+    private String gioi_tinh;
     
     @Column(nullable = false, length = 100)
+    @NotBlank(message = "Họ tên không được để trống")
+    @Size(min = 2, max = 100, message = "Họ tên phải từ 2-100 ký tự")
     private String ho_ten;
     
     @Column(nullable = false)
+    @NotNull(message = "Ngày sinh không được để trống")
+    @Past(message = "Ngày sinh phải là ngày trong quá khứ")
     private LocalDate ngay_sinh;
     
     @Column(nullable = false)
+    @NotNull(message = "Ngày vào làm không được để trống")
     private LocalDate ngay_vao_lam;
     
     @Column(length = 20)
+    @Pattern(regexp = "^0[0-9]{9}$", message = "Số điện thoại phải là 10 số bắt đầu bằng 0")
     private String so_dien_thoai;
     
     @Column(name = "cccd", unique = true, length = 20)
+    @Pattern(regexp = "^[0-9]{12}$", message = "CCCD phải là 12 số")
     private String cccd;
     
     @Column(name = "trang_thai", length = 50)

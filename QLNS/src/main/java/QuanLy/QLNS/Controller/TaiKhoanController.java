@@ -3,7 +3,6 @@ package QuanLy.QLNS.Controller;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,11 +22,13 @@ import jakarta.validation.Valid;
 @CrossOrigin(origins = "*")
 public class TaiKhoanController {
     
-    @Autowired
-    private TaiKhoanService taiKhoanService;
+    private final TaiKhoanService taiKhoanService;
+    private final PasswordEncoder passwordEncoder;
     
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public TaiKhoanController(TaiKhoanService taiKhoanService, PasswordEncoder passwordEncoder) {
+        this.taiKhoanService = taiKhoanService;
+        this.passwordEncoder = passwordEncoder;
+    }
     
     // Tạo tài khoản mới
     @PostMapping

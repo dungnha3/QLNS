@@ -21,9 +21,6 @@ public class HopDong {
     @Column(nullable = false, length = 100)
     private String loai_hopdong; // THU_VIEC, CHINH_THUC, HOP_TAC_VIEN
     
-    @Column(nullable = false, length = 200)
-    private String muc_luong;
-    
     @Column(nullable = false)
     private LocalDate ngay_batdau;
     

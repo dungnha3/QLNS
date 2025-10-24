@@ -47,8 +47,7 @@ public class ChamCongServiceImpl implements ChamCongService {
 		existing.setGio_ra(chamCong.getGio_ra());
 		existing.setGio_vao(chamCong.getGio_vao());
 		existing.setNgay_lam(chamCong.getNgay_lam());
-		existing.setNgay_tam(chamCong.getNgay_tam());
-		existing.setTrang_thai(chamCong.getTrang_thai());
+		existing.setTrangThai(chamCong.getTrangThai());
 		existing.setTongGioLam(chamCong.getTongGioLam());
 		existing.setLoaiCa(chamCong.getLoaiCa());
 		existing.setGhiChu(chamCong.getGhiChu());

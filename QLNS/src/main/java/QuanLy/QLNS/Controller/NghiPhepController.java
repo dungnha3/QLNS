@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import QuanLy.QLNS.Entity.NghiPhep;
 import QuanLy.QLNS.Service.NghiPhepService;
+import QuanLy.QLNS.dto.ApprovalRequest;
 
 @RestController
 @RequestMapping("/api/nghiphep")
@@ -60,6 +61,27 @@ public class NghiPhepController {
 	public ResponseEntity<Void> delete(@PathVariable Long id) {
 		service.delete(id);
 		return ResponseEntity.noContent().build();
+	}
+	
+	/**
+	 * Phê duyệt hoặc từ chối đơn nghỉ phép
+	 * POST /api/nghiphep/{id}/phe-duyet
+	 */
+	@PostMapping("/{id}/phe-duyet")
+	public ResponseEntity<NghiPhep> pheDuyet(
+			@PathVariable Long id,
+			@RequestBody ApprovalRequest request) {
+		try {
+			NghiPhep result = service.pheDuyet(
+				id, 
+				request.getNguoiDuyetId(), 
+				request.getTrangThai(), 
+				request.getGhiChu()
+			);
+			return ResponseEntity.ok(result);
+		} catch (IllegalArgumentException | IllegalStateException e) {
+			return ResponseEntity.badRequest().build();
+		}
 	}
 
     // merged into list via query param 'trangThai'

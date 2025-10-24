@@ -44,7 +44,6 @@ public class HopDongServiceImpl implements HopDongService {
 		HopDong existing = repository.findById(id)
 				.orElseThrow(() -> new IllegalArgumentException("HopDong not found: " + id));
 		existing.setLoai_hopdong(hopDong.getLoai_hopdong());
-		existing.setMuc_luong(hopDong.getMuc_luong());
 		existing.setNgay_batdau(hopDong.getNgay_batdau());
 		existing.setNgay_ketthuc(hopDong.getNgay_ketthuc());
 		existing.setNgay_ky(hopDong.getNgay_ky());

@@ -40,4 +40,9 @@ public interface HopDongRepository extends JpaRepository<HopDong, Long> {
     // Tìm hợp đồng theo nhân viên và trạng thái
     @Query("SELECT h FROM HopDong h WHERE h.nhanVien = :nhanVien AND h.trangThai = :trangThai")
     List<HopDong> findByNhanVienAndTrangThai(@Param("nhanVien") NhanVien nhanVien, @Param("trangThai") String trangThai);
+    
+    // Đếm hợp đồng sắp hết hạn (trong X ngày tới)
+    @Query("SELECT COUNT(h) FROM HopDong h WHERE h.trangThai = 'CON_HIEU_LUC' AND " +
+           "h.ngay_ketthuc BETWEEN CURRENT_DATE AND DATEADD(day, :days, CURRENT_DATE)")
+    long countExpiringContracts(@Param("days") int days);
 }

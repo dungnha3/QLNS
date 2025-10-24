@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Duration;
 
 @Entity
 @Table(name = "cham_cong")
@@ -27,11 +28,8 @@ public class ChamCong {
     @Column(nullable = false)
     private LocalDate ngay_lam;
     
-    @Column(nullable = false)
-    private Integer ngay_tam;
-    
-    @Column(nullable = false)
-    private LocalDate trang_thai;
+    @Column(name = "trang_thai", length = 50)
+    private String trangThai; // DUNG_GIO, DI_MUON, VE_SOM, NGHI_KHONG_PHEP
     
     @Column(name = "tong_gio_lam")
     private Double tongGioLam;
@@ -45,4 +43,25 @@ public class ChamCong {
     @ManyToOne
     @JoinColumn(name = "nhanvien_id", nullable = false)
     private NhanVien nhanVien;
+    
+    @PrePersist
+    @PreUpdate
+    protected void calculateTotalHours() {
+        if (gio_vao != null && gio_ra != null) {
+            Duration duration = Duration.between(gio_vao, gio_ra);
+            tongGioLam = duration.toMinutes() / 60.0;
+            
+            // Tự động xác định trạng thái (8h = 480 phút là chuẩn)
+            if (trangThai == null) {
+                LocalTime gioVaoChuan = LocalTime.of(8, 0);
+                if (gio_vao.isAfter(gioVaoChuan.plusMinutes(15))) {
+                    trangThai = "DI_MUON";
+                } else if (tongGioLam < 8.0) {
+                    trangThai = "VE_SOM";
+                } else {
+                    trangThai = "DUNG_GIO";
+                }
+            }
+        }
+    }
 }

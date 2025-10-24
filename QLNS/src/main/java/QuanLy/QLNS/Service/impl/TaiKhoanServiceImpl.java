@@ -3,7 +3,6 @@ package QuanLy.QLNS.Service.impl;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,8 +16,11 @@ import QuanLy.QLNS.Service.TaiKhoanService;
 @Transactional
 public class TaiKhoanServiceImpl implements TaiKhoanService {
     
-    @Autowired
-    private TaiKhoanRepository taiKhoanRepository;
+    private final TaiKhoanRepository taiKhoanRepository;
+    
+    public TaiKhoanServiceImpl(TaiKhoanRepository taiKhoanRepository) {
+        this.taiKhoanRepository = taiKhoanRepository;
+    }
     
     @Override
     public TaiKhoan save(TaiKhoan taiKhoan) {

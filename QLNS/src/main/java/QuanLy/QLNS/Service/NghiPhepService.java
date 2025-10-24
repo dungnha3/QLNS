@@ -26,6 +26,16 @@ public interface NghiPhepService {
 	List<NghiPhep> findByTrangThai(String trangThai);
 
     Page<NghiPhep> findByTrangThai(String trangThai, Pageable pageable);
+    
+    /**
+     * Phê duyệt hoặc từ chối đơn nghỉ phép
+     * @param nghiPhepId ID đơn nghỉ phép
+     * @param nguoiDuyetId ID người phê duyệt
+     * @param trangThai Trạng thái mới (DA_DUYET hoặc TU_CHOI)
+     * @param ghiChu Ghi chú khi phê duyệt
+     * @return NghiPhep đã được cập nhật
+     */
+    NghiPhep pheDuyet(Long nghiPhepId, Long nguoiDuyetId, String trangThai, String ghiChu);
 }
 
 

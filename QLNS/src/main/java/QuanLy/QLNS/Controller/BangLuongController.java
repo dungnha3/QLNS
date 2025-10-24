@@ -61,6 +61,23 @@ public class BangLuongController {
 		service.delete(id);
 		return ResponseEntity.noContent().build();
 	}
+	
+	/**
+	 * Tính lương tự động cho nhân viên
+	 * POST /api/bangluong/tinh-luong?nhanVienId=1&thang=10&nam=2024
+	 */
+	@PostMapping("/tinh-luong")
+	public ResponseEntity<BangLuong> tinhLuongTuDong(
+			@RequestParam Long nhanVienId,
+			@RequestParam int thang,
+			@RequestParam int nam) {
+		try {
+			BangLuong bangLuong = service.tinhLuongTuDong(nhanVienId, thang, nam);
+			return ResponseEntity.ok(bangLuong);
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().build();
+		}
+	}
 
     // merged into list via query param 'trangThai'
 }
