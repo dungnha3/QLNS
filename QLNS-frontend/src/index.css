@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+html, body, #root {
+  height: 100%;
+}
+
+button,
+[type='button'],
+[type='submit'],
+[role='button'],
+a,
+.btn {
+  cursor: pointer;
+}

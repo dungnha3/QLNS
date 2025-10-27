@@ -57,8 +57,8 @@
 
 | Chức năng | ADMIN | MANAGER | EMPLOYEE |
 |-----------|-------|---------|----------|
-| Dashboard | ✅ | ✅ | ✅ |
-| Nhân viên | ✅ | ✅ | ❌ |
+| Dashboard | ✅    | ✅     | ✅       |
+| Nhân viên | ✅    | ✅ | ❌ |
 | Phòng ban | ✅ | ✅ | ❌ |
 | Chức vụ | ✅ | ✅ | ❌ |
 | Hợp đồng | ✅ | ✅ | ✅ (chỉ xem của mình) |
