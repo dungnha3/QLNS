@@ -77,7 +77,6 @@ export default function PhongBanList() {
                 <th className="p-2">ID</th>
                 <th className="p-2">Tên phòng ban</th>
                 <th className="p-2">Địa điểm</th>
-                <th className="p-2">Số lượng NV</th>
                 <th className="p-2 w-40">Hành động</th>
               </tr>
             </thead>
@@ -87,7 +86,6 @@ export default function PhongBanList() {
                   <td className="p-2">{pb.phongban_id}</td>
                   <td className="p-2">{pb.ten_phongban}</td>
                   <td className="p-2">{pb.dia_diem}</td>
-                  <td className="p-2">{pb.soLuongNhanVien ?? '-'}</td>
                   <td className="p-2 flex gap-2">
                     <Link to={`/phongban/${pb.phongban_id}`} className="px-2 py-1 border rounded">Chi tiết</Link>
                     <button onClick={()=>setShowForm(pb)} className="px-2 py-1 border rounded">Sửa</button>
@@ -97,7 +95,7 @@ export default function PhongBanList() {
               ))}
               {pageData.content.length === 0 && (
                 <tr>
-                  <td className="p-3 text-center text-gray-500" colSpan={5}>Không có dữ liệu</td>
+                  <td className="p-3 text-center text-gray-500" colSpan={4}>Không có dữ liệu</td>
                 </tr>
               )}
             </tbody>

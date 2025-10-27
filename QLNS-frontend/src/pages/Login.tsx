@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { } from 'react-router-dom'
 import api from '../api/client'
 import { useAuthStore } from '../stores/auth'
 
@@ -50,9 +50,7 @@ export default function Login() {
         <button disabled={loading} className="w-full bg-black text-white py-2 rounded disabled:opacity-50">
           {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
         </button>
-        <div className="text-sm text-center">
-          Chưa có tài khoản? <Link className="text-blue-600" to="/register">Đăng ký</Link>
-        </div>
+        {/* Register and change-password removed */}
       </form>
     </div>
   )

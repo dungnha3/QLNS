@@ -1,14 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
+@import "./styles/modern.css";
 
 html, body, #root {
   height: 100%;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+  background-color: #f9fafb;
+  color: #111827;
 }
 
 button,
 [type='button'],
 [type='submit'],
 [role='button'],
-a,
-.btn {
+a {
   cursor: pointer;
+}
+
+/* Ensure sidebar menu items text is always visible */
+nav a {
+  text-decoration: none !important;
+}
+
+nav a span {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Force white text on active menu items */
+aside nav a[class*="from-primary"] span,
+aside nav a[class*="bg-gradient"] span {
+  color: white !important;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #f3f4f6;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #9ca3af;
 }

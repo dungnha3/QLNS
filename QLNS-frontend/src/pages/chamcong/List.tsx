@@ -67,19 +67,31 @@ export default function ChamCongList() {
   const [year, setYear] = useState(toMonthYear(today).y)
   const [view, setView] = useState<'table'|'calendar'>('table')
   const [showForm, setShowForm] = useState<null | Partial<ChamCong>>(null)
-  const { data, isLoading, error } = useChamCongList(page, size, undefined, month, year)
+  const { user } = useAuthStore()
+  const isEmployee = user?.role === 'EMPLOYEE'
+  const onlyId = isEmployee ? user?.nhanVienId : undefined
+  const { data, isLoading, error } = useChamCongList(page, size, onlyId as any, month, year)
   const createMut = useCreateChamCong()
   const updateMut = useUpdateChamCong()
   const deleteMut = useDeleteChamCong()
-  const { user } = useAuthStore()
 
   const pageData = data || { content: [], totalElements: 0, totalPages: 0, number: 0, size }
-  const totalHours = useMemo(()=> (pageData.content||[]).reduce((s: number, x: any)=> s + (x.tongGioLam||0), 0), [pageData])
-  const isEmployee = user?.role === 'EMPLOYEE'
+  const filteredContent = useMemo(() => {
+    if (!isEmployee) return pageData.content || []
+    const myId = user?.nhanVienId
+    return (pageData.content || []).filter((cc: any) => (cc.nhanVien?.nhanvien_id ?? cc.nhanVien) === myId)
+  }, [isEmployee, pageData, user])
+  const totalHours = useMemo(()=> (filteredContent||[]).reduce((s: number, x: any)=> s + (x.tongGioLam||0), 0), [filteredContent])
 
   const onSubmit = async (form: Partial<ChamCong>) => {
     try {
-      const payload: any = { ...form, nhanVien: form.nhanVien }
+      const payload: any = {
+        ...form,
+        nhanVien:
+          typeof form.nhanVien === 'number'
+            ? { nhanvien_id: form.nhanVien }
+            : (form.nhanVien as any),
+      }
       if ((showForm as any)?.chamcong_id) {
         await updateMut.mutateAsync({ id: (showForm as any).chamcong_id, body: payload })
       } else {
@@ -92,8 +104,8 @@ export default function ChamCongList() {
   const monthRecords = useMemo(()=> {
     const m = String(month).padStart(2,'0')
     const y = String(year)
-    return (pageData.content||[]).filter((x: any)=> (x.ngay_lam||'').startsWith(`${y}-${m}-`))
-  }, [pageData, month, year])
+    return (filteredContent||[]).filter((x: any)=> (x.ngay_lam||'').startsWith(`${y}-${m}-`))
+  }, [filteredContent, month, year])
 
   const firstWeekdayOfMonth = (y: number, m: number) => {
     const d = new Date(y, m-1, 1)
@@ -140,6 +152,7 @@ export default function ChamCongList() {
             <thead>
               <tr className="bg-gray-50 text-left">
                 <th className="p-2">Ngày</th>
+                <th className="p-2">Nhân viên</th>
                 <th className="p-2">Giờ vào</th>
                 <th className="p-2">Giờ ra</th>
                 <th className="p-2">Loại ca</th>
@@ -149,9 +162,10 @@ export default function ChamCongList() {
               </tr>
             </thead>
             <tbody>
-              {pageData.content.map((cc: any) => (
+              {filteredContent.map((cc: any) => (
                 <tr key={cc.chamcong_id} className="border-t">
                   <td className="p-2">{cc.ngay_lam}</td>
+                  <td className="p-2">{cc.nhanVien?.ho_ten || cc.nhanVien?.nhanvien_id || '-'}</td>
                   <td className="p-2">{cc.gio_vao}</td>
                   <td className="p-2">{cc.gio_ra}</td>
                   <td className="p-2">{cc.loaiCa || '-'}</td>
@@ -165,9 +179,9 @@ export default function ChamCongList() {
                   )}
                 </tr>
               ))}
-              {pageData.content.length === 0 && (
+              {filteredContent.length === 0 && (
                 <tr>
-                  <td className="p-3 text-center text-gray-500" colSpan={isEmployee?6:7}>Không có dữ liệu</td>
+                  <td className="p-3 text-center text-gray-500" colSpan={isEmployee?7:8}>Không có dữ liệu</td>
                 </tr>
               )}
             </tbody>
@@ -204,7 +218,7 @@ export default function ChamCongList() {
       )}
 
       <div className="flex items-center justify-between">
-        <div>Tổng: {pageData.totalElements}</div>
+        <div>Tổng: {isEmployee ? filteredContent.length : pageData.totalElements}</div>
         <div className="flex items-center gap-2">
           <button className="px-2 py-1 border rounded" disabled={page<=0} onClick={()=>setPage((p)=>p-1)}>Trước</button>
           <span>Trang {page+1}/{Math.max(1, pageData.totalPages)}</span>

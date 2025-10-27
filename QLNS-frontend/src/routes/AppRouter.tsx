@@ -4,8 +4,6 @@ import Login from '../pages/Login'
 import Dashboard from '../pages/Dashboard'
 import MainLayout from '../layouts/MainLayout'
 import { useAuthStore } from '../stores/auth'
-import Register from '../pages/Register'
-import ChangePassword from '../pages/ChangePassword'
 import NhanVienList from '../pages/nhanvien/List'
 import NhanVienDetail from '../pages/nhanvien/Detail'
 import PhongBanList from '../pages/phongban/List'
@@ -15,7 +13,6 @@ import HopDongList from '../pages/hopdong/List'
 import ChamCongList from '../pages/chamcong/List'
 import BangLuongList from '../pages/bangluong/List'
 import NghiPhepList from '../pages/nghiphep/List'
-import DanhGiaList from '../pages/danhgia/List'
 import TaiKhoanList from '../pages/taikhoan/List'
 
 function RequireAuth({ children, allow }: { children: React.ReactElement; allow?: Array<'ADMIN'|'MANAGER'|'EMPLOYEE'> }) {
@@ -30,15 +27,7 @@ export default function AppRouter() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<GuestOnly><Register /></GuestOnly>} />
-        <Route
-          path="/change-password"
-          element={
-            <RequireAuth>
-              <ChangePassword />
-            </RequireAuth>
-          }
-        />
+        {/** Removed register and change-password routes per request */}
         <Route
           path="/"
           element={
@@ -99,16 +88,7 @@ export default function AppRouter() {
           >
             <Route index element={<NghiPhepList />} />
           </Route>
-          <Route
-            path="danhgia"
-            element={
-              <RequireAuth allow={['ADMIN','MANAGER','EMPLOYEE']}>
-                <SectionOutlet />
-              </RequireAuth>
-            }
-          >
-            <Route index element={<DanhGiaList />} />
-          </Route>
+          {/** Đã ẩn/xoá module Đánh giá khỏi routes */}
           <Route
             path="tai-khoan"
             element={

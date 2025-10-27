@@ -16,13 +16,13 @@ function HDForm({ initial, onSubmit, onCancel, submitting }: { initial?: Partial
   })
   const onChange = (k: keyof HopDong, v: any) => setForm((s) => ({ ...s, [k]: v }))
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center">
-      <div className="bg-white p-4 rounded shadow w-full max-w-2xl">
+    <div className="modal-backdrop">
+      <div className="modal-panel max-w-2xl">
         <h3 className="text-lg font-semibold mb-3">{(initial as any)?.hopdong_id ? 'Cập nhật' : 'Thêm'} hợp đồng</h3>
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-sm mb-1">Loại hợp đồng</label>
-            <select className="w-full border rounded px-3 py-2" value={form.loai_hopdong as any} onChange={(e)=>onChange('loai_hopdong', e.target.value as any)}>
+            <select className="input" value={form.loai_hopdong as any} onChange={(e)=>onChange('loai_hopdong', e.target.value as any)}>
               <option value="THU_VIEC">Thử việc</option>
               <option value="CHINH_THUC">Chính thức</option>
               <option value="HOP_TAC_VIEN">Hợp tác viên</option>
@@ -30,23 +30,23 @@ function HDForm({ initial, onSubmit, onCancel, submitting }: { initial?: Partial
           </div>
           <div>
             <label className="block text-sm mb-1">Lương cơ bản</label>
-            <input type="number" className="w-full border rounded px-3 py-2" value={form.luongCoBan??''} onChange={(e)=>onChange('luongCoBan', Number(e.target.value))} />
+            <input type="number" className="input" value={form.luongCoBan??''} onChange={(e)=>onChange('luongCoBan', Number(e.target.value))} />
           </div>
           <div>
             <label className="block text-sm mb-1">Ngày ký</label>
-            <input type="date" className="w-full border rounded px-3 py-2" value={form.ngay_ky||''} onChange={(e)=>onChange('ngay_ky', e.target.value)} />
+            <input type="date" className="input" value={form.ngay_ky||''} onChange={(e)=>onChange('ngay_ky', e.target.value)} />
           </div>
           <div>
             <label className="block text-sm mb-1">Ngày bắt đầu</label>
-            <input type="date" className="w-full border rounded px-3 py-2" value={form.ngay_batdau||''} onChange={(e)=>onChange('ngay_batdau', e.target.value)} />
+            <input type="date" className="input" value={form.ngay_batdau||''} onChange={(e)=>onChange('ngay_batdau', e.target.value)} />
           </div>
           <div>
             <label className="block text-sm mb-1">Ngày kết thúc</label>
-            <input type="date" className="w-full border rounded px-3 py-2" value={form.ngay_ketthuc||''} onChange={(e)=>onChange('ngay_ketthuc', e.target.value)} />
+            <input type="date" className="input" value={form.ngay_ketthuc||''} onChange={(e)=>onChange('ngay_ketthuc', e.target.value)} />
           </div>
           <div>
             <label className="block text-sm mb-1">Trạng thái</label>
-            <select className="w-full border rounded px-3 py-2" value={form.trangThai as any} onChange={(e)=>onChange('trangThai', e.target.value)}>
+            <select className="input" value={form.trangThai as any} onChange={(e)=>onChange('trangThai', e.target.value)}>
               <option value="CON_HIEU_LUC">Còn hiệu lực</option>
               <option value="HET_HAN">Hết hạn</option>
               <option value="HUY">Hủy</option>
@@ -54,17 +54,17 @@ function HDForm({ initial, onSubmit, onCancel, submitting }: { initial?: Partial
           </div>
           <div className="col-span-2">
             <label className="block text-sm mb-1">Nhân viên ID</label>
-            <input type="number" className="w-full border rounded px-3 py-2" value={(form.nhanVien as any)??''} onChange={(e)=>onChange('nhanVien', Number(e.target.value))} />
+            <input type="number" className="input" value={(form.nhanVien as any)??''} onChange={(e)=>onChange('nhanVien', Number(e.target.value))} />
             <p className="text-xs text-gray-500 mt-1">Nhập ID nhân viên liên kết hợp đồng.</p>
           </div>
           <div className="col-span-2">
             <label className="block text-sm mb-1">Ghi chú</label>
-            <textarea className="w-full border rounded px-3 py-2" value={form.ghiChu||''} onChange={(e)=>onChange('ghiChu', e.target.value)} />
+            <textarea className="input" value={form.ghiChu||''} onChange={(e)=>onChange('ghiChu', e.target.value)} />
           </div>
         </div>
         <div className="flex justify-end gap-2 mt-4">
-          <button onClick={onCancel} className="px-3 py-1.5 rounded border">Hủy</button>
-          <button disabled={submitting} onClick={()=>onSubmit(form)} className="px-3 py-1.5 rounded bg-black text-white disabled:opacity-50">Lưu</button>
+          <button onClick={onCancel} className="btn-ghost">Hủy</button>
+          <button disabled={submitting} onClick={()=>onSubmit(form)} className="btn-primary disabled:opacity-50">Lưu</button>
         </div>
       </div>
     </div>
@@ -122,7 +122,7 @@ export default function HopDongList() {
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Hợp đồng</h1>
         {!isEmployee && (
-          <button onClick={()=>setShowForm({})} className="bg-black text-white px-3 py-1.5 rounded">Thêm mới</button>
+          <button onClick={()=>setShowForm({})} className="btn-primary">Thêm mới</button>
         )}
       </div>
       {isLoading ? (
@@ -130,7 +130,7 @@ export default function HopDongList() {
       ) : error ? (
         <div className="text-red-600">Lỗi tải dữ liệu</div>
       ) : (
-        <div className="bg-white rounded shadow overflow-x-auto">
+        <div className="card overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 text-left">
@@ -161,8 +161,8 @@ export default function HopDongList() {
                     <td className="p-2">{hd.trangThai || '-'}</td>
                     {!isEmployee && (
                       <td className="p-2 flex gap-2">
-                        <button onClick={()=>setShowForm(hd)} className="px-2 py-1 border rounded">Sửa</button>
-                        <button onClick={()=>deleteMut.mutate(hd.hopdong_id)} className="px-2 py-1 border rounded text-red-600">Xoá</button>
+                        <button onClick={()=>setShowForm(hd)} className="btn-ghost text-xs px-2 py-1">Sửa</button>
+                        <button onClick={()=>deleteMut.mutate(hd.hopdong_id)} className="btn-danger text-xs px-2 py-1">Xoá</button>
                       </td>
                     )}
                   </tr>
@@ -180,9 +180,9 @@ export default function HopDongList() {
       <div className="flex items-center justify-between">
         <div>Tổng: {isEmployee ? filteredContent.length : pageData.totalElements}</div>
         <div className="flex items-center gap-2">
-          <button className="px-2 py-1 border rounded" disabled={page<=0} onClick={()=>setPage((p)=>p-1)}>Trước</button>
+          <button className="btn-ghost text-xs px-2 py-1" disabled={page<=0} onClick={()=>setPage((p)=>p-1)}>Trước</button>
           <span>Trang {page+1}/{Math.max(1, pageData.totalPages)}</span>
-          <button className="px-2 py-1 border rounded" disabled={page+1>=pageData.totalPages} onClick={()=>setPage((p)=>p+1)}>Sau</button>
+          <button className="btn-ghost text-xs px-2 py-1" disabled={page+1>=pageData.totalPages} onClick={()=>setPage((p)=>p+1)}>Sau</button>
         </div>
       </div>
 
