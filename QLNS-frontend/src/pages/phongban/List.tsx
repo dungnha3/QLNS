@@ -60,56 +60,119 @@ export default function PhongBanList() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Phòng ban</h1>
-        <button onClick={()=>setShowForm({})} className="bg-black text-white px-3 py-1.5 rounded">Thêm mới</button>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Phòng ban</h1>
+          <p className="text-sm text-gray-500 mt-1">Chọn phòng ban để xem danh sách nhân viên</p>
+        </div>
+        <button 
+          onClick={()=>setShowForm({})} 
+          className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2.5 rounded-lg font-medium shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all"
+        >
+          <span>➕</span>
+          <span>Thêm mới</span>
+        </button>
       </div>
+      
       {isLoading ? (
-        <div>Đang tải...</div>
+        <div className="text-center py-12">
+          <div className="inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="mt-2 text-gray-500">Đang tải...</p>
+        </div>
       ) : error ? (
-        <div className="text-red-600">Lỗi tải dữ liệu</div>
+        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">Lỗi tải dữ liệu</div>
       ) : (
-        <div className="bg-white rounded shadow overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-gray-50 text-left">
-                <th className="p-2">ID</th>
-                <th className="p-2">Tên phòng ban</th>
-                <th className="p-2">Địa điểm</th>
-                <th className="p-2 w-40">Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pageData.content.map((pb) => (
-                <tr key={pb.phongban_id} className="border-t">
-                  <td className="p-2">{pb.phongban_id}</td>
-                  <td className="p-2">{pb.ten_phongban}</td>
-                  <td className="p-2">{pb.dia_diem}</td>
-                  <td className="p-2 flex gap-2">
-                    <Link to={`/phongban/${pb.phongban_id}`} className="px-2 py-1 border rounded">Chi tiết</Link>
-                    <button onClick={()=>setShowForm(pb)} className="px-2 py-1 border rounded">Sửa</button>
-                    <button onClick={()=>deleteMut.mutate(pb.phongban_id)} className="px-2 py-1 border rounded text-red-600">Xoá</button>
-                  </td>
-                </tr>
-              ))}
-              {pageData.content.length === 0 && (
-                <tr>
-                  <td className="p-3 text-center text-gray-500" colSpan={4}>Không có dữ liệu</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {pageData.content.map((pb) => (
+              <Link
+                key={pb.phongban_id}
+                to={`/phongban/${pb.phongban_id}`}
+                className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-300"
+              >
+                <div className="p-6">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                      <span className="text-white text-xl">🏢</span>
+                    </div>
+                    <span className="text-xs font-semibold text-gray-400">#{pb.phongban_id}</span>
+                  </div>
+                  
+                  <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                    {pb.ten_phongban}
+                  </h3>
+                  
+                  <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                    <span>📍</span>
+                    <span>{pb.dia_diem}</span>
+                  </div>
+                  
+                  {pb.mo_ta && (
+                    <p className="text-sm text-gray-500 line-clamp-2 mb-4">
+                      {pb.mo_ta}
+                    </p>
+                  )}
+                  
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <span className="text-xs text-gray-500">Xem chi tiết →</span>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault()
+                          setShowForm(pb)
+                        }}
+                        className="p-1.5 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Sửa"
+                      >
+                        📝
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault()
+                          if (confirm('Xác nhận xóa?')) deleteMut.mutate(pb.phongban_id)
+                        }}
+                        className="p-1.5 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Xóa"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+            
+            {pageData.content.length === 0 && (
+              <div className="col-span-full text-center py-12">
+                <div className="text-6xl mb-4">📂</div>
+                <p className="text-gray-500">Chưa có phòng ban nào</p>
+              </div>
+            )}
+          </div>
+          
+          <div className="flex items-center justify-between bg-white px-4 py-3 rounded-lg shadow">
+            <div className="text-sm text-gray-600">Tổng: <span className="font-semibold">{pageData.totalElements}</span> phòng ban</div>
+            <div className="flex items-center gap-2">
+              <button 
+                className="px-3 py-1.5 border rounded-lg disabled:opacity-50 hover:bg-gray-50 transition-colors" 
+                disabled={page<=0} 
+                onClick={()=>setPage((p)=>p-1)}
+              >
+                ← Trước
+              </button>
+              <span className="text-sm px-3">Trang {page+1}/{Math.max(1, pageData.totalPages)}</span>
+              <button 
+                className="px-3 py-1.5 border rounded-lg disabled:opacity-50 hover:bg-gray-50 transition-colors" 
+                disabled={page+1>=pageData.totalPages} 
+                onClick={()=>setPage((p)=>p+1)}
+              >
+                Sau →
+              </button>
+            </div>
+          </div>
+        </>
       )}
-      <div className="flex items-center justify-between">
-        <div>Tổng: {pageData.totalElements}</div>
-        <div className="flex items-center gap-2">
-          <button className="px-2 py-1 border rounded" disabled={page<=0} onClick={()=>setPage((p)=>p-1)}>Trước</button>
-          <span>Trang {page+1}/{Math.max(1, pageData.totalPages)}</span>
-          <button className="px-2 py-1 border rounded" disabled={page+1>=pageData.totalPages} onClick={()=>setPage((p)=>p+1)}>Sau</button>
-        </div>
-      </div>
 
       {showForm && (
         <PBForm initial={showForm} submitting={createMut.isPending||updateMut.isPending} onSubmit={onSubmit} onCancel={()=>setShowForm(null)} />

@@ -1,17 +1,20 @@
 import { useState } from 'react'
 import type { TaiKhoan } from '../../api/taikhoan'
 import { useCreateTaiKhoan, useDeleteTaiKhoan, useTaiKhoanList, useUpdateTaiKhoan } from '../../api/taikhoan'
+import { NhanVienSelect } from '../../components/NhanVienSelect'
 
 function TKForm({ initial, onSubmit, onCancel, submitting }: { initial?: Partial<TaiKhoan>; onSubmit: (v: Partial<TaiKhoan>) => void; onCancel: () => void; submitting?: boolean }) {
   const [form, setForm] = useState<Partial<TaiKhoan>>({
     ten_dangnhap: initial?.ten_dangnhap || '',
     mat_khau: '', // để trống nếu không đổi
     quyen_han: (initial?.quyen_han as any) || 'EMPLOYEE',
+    nhanVien: typeof initial?.nhanVien === 'number' ? initial?.nhanVien : (initial?.nhanVien as any)?.nhanvien_id || undefined,
   })
   const onChange = (k: keyof TaiKhoan, v: any) => setForm((s) => ({ ...s, [k]: v }))
   const submit = () => {
     const payload: any = { ten_dangnhap: form.ten_dangnhap, quyen_han: form.quyen_han }
     if (form.mat_khau && form.mat_khau.trim()) payload.mat_khau = form.mat_khau
+    if (form.nhanVien) payload.nhanVien = form.nhanVien
     onSubmit(payload)
   }
   return (
@@ -19,6 +22,12 @@ function TKForm({ initial, onSubmit, onCancel, submitting }: { initial?: Partial
       <div className="bg-white p-4 rounded shadow w-full max-w-xl">
         <h3 className="text-lg font-semibold mb-3">{(initial as any)?.taikhoan_id ? 'Cập nhật' : 'Tạo'} tài khoản</h3>
         <div className="space-y-3">
+          <NhanVienSelect
+            value={form.nhanVien as number}
+            onChange={(id) => onChange('nhanVien', id)}
+            label="Nhân viên"
+            required
+          />
           <div>
             <label className="block text-sm mb-1">Tên đăng nhập</label>
             <input className="w-full border rounded px-3 py-2" value={form.ten_dangnhap||''} onChange={(e)=>onChange('ten_dangnhap', e.target.value)} />

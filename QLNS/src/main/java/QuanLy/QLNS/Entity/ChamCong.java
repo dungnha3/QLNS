@@ -28,17 +28,33 @@ public class ChamCong {
     @Column(nullable = false)
     private LocalDate ngay_lam;
     
-    @Column(name = "trang_thai", length = 50)
+    @Column(name = "trang_thai", columnDefinition = "NVARCHAR(50)")
     private String trangThai; // DUNG_GIO, DI_MUON, VE_SOM, NGHI_KHONG_PHEP
     
     @Column(name = "tong_gio_lam")
     private Double tongGioLam;
     
-    @Column(name = "loai_ca", length = 50)
+    @Column(name = "loai_ca", columnDefinition = "NVARCHAR(20)")
     private String loaiCa; // SANG, CHIEU, TOI, FULL
     
-    @Column(name = "ghi_chu", columnDefinition = "TEXT")
+    @Column(name = "ghi_chu", columnDefinition = "NVARCHAR(MAX)")
     private String ghiChu;
+    
+    // GPS fields
+    @Column(name = "latitude")
+    private Double latitude; // Vĩ độ
+    
+    @Column(name = "longitude")
+    private Double longitude; // Kinh độ
+    
+    @Column(name = "dia_chi_checkin", columnDefinition = "NVARCHAR(500)")
+    private String diaChiCheckin; // Địa chỉ check-in
+    
+    @Column(name = "khoang_cach")
+    private Double khoangCach; // Khoảng cách từ công ty (meters)
+    
+    @Column(name = "phuong_thuc", columnDefinition = "NVARCHAR(20)")
+    private String phuongThuc; // GPS, MANUAL, QR_CODE
     
     @ManyToOne
     @JoinColumn(name = "nhanvien_id", nullable = false)

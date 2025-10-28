@@ -22,7 +22,7 @@ import QuanLy.QLNS.Entity.NhanVien;
 import QuanLy.QLNS.Service.NhanVienService;
 
 @RestController
-@RequestMapping("/api/nhanvien")
+@RequestMapping(value = "/api/nhanvien", produces = "application/json;charset=UTF-8")
 public class NhanVienController {
 
 	private final NhanVienService nhanVienService;

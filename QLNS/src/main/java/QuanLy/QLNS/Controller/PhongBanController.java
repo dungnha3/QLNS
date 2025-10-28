@@ -21,7 +21,7 @@ import QuanLy.QLNS.Entity.PhongBan;
 import QuanLy.QLNS.Service.PhongBanService;
 
 @RestController
-@RequestMapping("/api/phongban")
+@RequestMapping(value = "/api/phongban", produces = "application/json;charset=UTF-8")
 public class PhongBanController {
 
 	private final PhongBanService service;

@@ -41,12 +41,6 @@ public class BangLuong {
     @Column(name = "nam", nullable = false)
     private Integer nam;
     
-    @Column(name = "thuong", precision = 15, scale = 2)
-    private BigDecimal thuong;
-    
-    @Column(name = "phat", precision = 15, scale = 2)
-    private BigDecimal phat;
-    
     @Column(name = "bhxh", precision = 15, scale = 2)
     private BigDecimal bhxh;
     
@@ -62,7 +56,7 @@ public class BangLuong {
     @Column(name = "ngay_thanh_toan")
     private LocalDate ngayThanhToan;
     
-    @Column(name = "trang_thai", length = 50)
+    @Column(name = "trang_thai", columnDefinition = "NVARCHAR(50)")
     private String trangThai; // CHO_DUYET, DA_DUYET, DA_THANH_TOAN
     
     @ManyToOne

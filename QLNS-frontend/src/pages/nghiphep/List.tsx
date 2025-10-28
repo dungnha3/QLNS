@@ -2,44 +2,72 @@ import { useState } from 'react'
 import type { NghiPhep } from '../../api/nghiphep'
 import { useCreateNghiPhep, useDeleteNghiPhep, useNghiPhepList, usePheDuyetNghiPhep, useUpdateNghiPhep } from '../../api/nghiphep'
 import { useAuthStore } from '../../stores/auth'
+import { NhanVienSelect } from '../../components/NhanVienSelect'
 
 function NPForm({ initial, onSubmit, onCancel, submitting }: { initial?: Partial<NghiPhep>; onSubmit: (v: Partial<NghiPhep>) => void; onCancel: () => void; submitting?: boolean }) {
+  const { user } = useAuthStore()
+  const isEmployee = user?.role === 'EMPLOYEE'
+  
   const [form, setForm] = useState<Partial<NghiPhep>>({
-    nhanVien: typeof initial?.nhanVien === 'number' ? initial?.nhanVien : (initial?.nhanVien as any)?.nhanvien_id || undefined,
-    tu_ngay: initial?.tu_ngay || '',
-    den_ngay: initial?.den_ngay || '',
-    ly_do: initial?.ly_do || '',
-    loai: initial?.loai || 'PHEP_NAM',
+    nhanVien: isEmployee ? user?.nhanVienId : (typeof initial?.nhanVien === 'number' ? initial?.nhanVien : (initial?.nhanVien as any)?.nhanvien_id || undefined),
+    ngayBatDau: initial?.ngayBatDau || initial?.tu_ngay || '',
+    ngayKetThuc: initial?.ngayKetThuc || initial?.den_ngay || '',
+    lyDo: initial?.lyDo || initial?.ly_do || '',
+    loaiNghi: initial?.loaiNghi || initial?.loai || 'PHEP_NAM',
   })
-  const onChange = (k: keyof NghiPhep, v: any) => setForm((s) => ({ ...s, [k]: v }))
+  const onChange = (k: string, v: any) => setForm((s) => ({ ...s, [k]: v }))
+  
+  // Calculate số ngày nghỉ
+  const calculateDays = () => {
+    if (form.ngayBatDau && form.ngayKetThuc) {
+      const start = new Date(form.ngayBatDau)
+      const end = new Date(form.ngayKetThuc)
+      const diff = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
+      return diff > 0 ? diff : 0
+    }
+    return 0
+  }
+  
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center">
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
       <div className="bg-white p-4 rounded shadow w-full max-w-xl">
         <h3 className="text-lg font-semibold mb-3">{(initial as any)?.nghiphep_id ? 'Cập nhật' : 'Đăng ký'} nghỉ phép</h3>
         <div className="grid grid-cols-2 gap-3">
-          <div className="col-span-2">
-            <label className="block text-sm mb-1">Nhân viên ID</label>
-            <input type="number" className="w-full border rounded px-3 py-2" value={(form.nhanVien as any)??''} onChange={(e)=>onChange('nhanVien', Number(e.target.value))} />
-          </div>
+          {!isEmployee && (
+            <div className="col-span-2">
+              <NhanVienSelect
+                value={form.nhanVien as number}
+                onChange={(id) => onChange('nhanVien', id)}
+                label="Nhân viên"
+                required
+              />
+            </div>
+          )}
           <div>
             <label className="block text-sm mb-1">Từ ngày</label>
-            <input type="date" className="w-full border rounded px-3 py-2" value={form.tu_ngay||''} onChange={(e)=>onChange('tu_ngay', e.target.value)} />
+            <input type="date" className="w-full border rounded px-3 py-2" value={form.ngayBatDau||''} onChange={(e)=>onChange('ngayBatDau', e.target.value)} />
           </div>
           <div>
             <label className="block text-sm mb-1">Đến ngày</label>
-            <input type="date" className="w-full border rounded px-3 py-2" value={form.den_ngay||''} onChange={(e)=>onChange('den_ngay', e.target.value)} />
+            <input type="date" className="w-full border rounded px-3 py-2" value={form.ngayKetThuc||''} onChange={(e)=>onChange('ngayKetThuc', e.target.value)} />
           </div>
           <div>
-            <label className="block text-sm mb-1">Loại</label>
-            <select className="w-full border rounded px-3 py-2" value={form.loai as any} onChange={(e)=>onChange('loai', e.target.value)}>
+            <label className="block text-sm mb-1">Loại nghỉ</label>
+            <select className="w-full border rounded px-3 py-2" value={form.loaiNghi as any} onChange={(e)=>onChange('loaiNghi', e.target.value)}>
               <option value="PHEP_NAM">Phép năm</option>
               <option value="OM">Ốm</option>
-              <option value="VIEC_RIENG">Việc riêng</option>
+              <option value="KHONG_LUONG">Không lương</option>
+              <option value="KET_HON">Kết hôn</option>
+              <option value="TANG">Tang</option>
             </select>
+          </div>
+          <div>
+            <label className="block text-sm mb-1">Số ngày nghỉ</label>
+            <input type="text" className="w-full border rounded px-3 py-2 bg-gray-50" value={calculateDays()} readOnly />
           </div>
           <div className="col-span-2">
             <label className="block text-sm mb-1">Lý do</label>
-            <textarea className="w-full border rounded px-3 py-2" value={form.ly_do||''} onChange={(e)=>onChange('ly_do', e.target.value)} />
+            <textarea className="w-full border rounded px-3 py-2" rows={3} value={form.lyDo||''} onChange={(e)=>onChange('lyDo', e.target.value)} placeholder="Nhập lý do nghỉ phép..." />
           </div>
         </div>
         <div className="flex justify-end gap-2 mt-4">
@@ -54,12 +82,18 @@ function NPForm({ initial, onSubmit, onCancel, submitting }: { initial?: Partial
 function ApproveModal({ id, onClose }: { id: number; onClose: () => void }) {
   const [trangThai, setTrangThai] = useState<'DA_DUYET'|'TU_CHOI'>('DA_DUYET')
   const [ghiChu, setGhiChu] = useState('')
-  const [nguoiDuyetId, setNguoiDuyetId] = useState<number | ''>('' as any)
   const pheDuyetMut = usePheDuyetNghiPhep()
+  const { user } = useAuthStore()
+  
   const onSubmit = async () => {
-    await pheDuyetMut.mutateAsync({ id, nguoiDuyetId: Number(nguoiDuyetId), trangThai, ghiChu })
+    if (!user?.nhanVienId) {
+      alert('Không tìm thấy thông tin người duyệt')
+      return
+    }
+    await pheDuyetMut.mutateAsync({ id, nguoiDuyetId: user.nhanVienId, trangThai, ghiChu })
     onClose()
   }
+  
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center">
       <div className="bg-white p-4 rounded shadow w-full max-w-md">
@@ -74,16 +108,16 @@ function ApproveModal({ id, onClose }: { id: number; onClose: () => void }) {
           </div>
           <div>
             <label className="block text-sm mb-1">Ghi chú</label>
-            <textarea className="w-full border rounded px-3 py-2" value={ghiChu} onChange={(e)=>setGhiChu(e.target.value)} />
+            <textarea className="w-full border rounded px-3 py-2" value={ghiChu} onChange={(e)=>setGhiChu(e.target.value)} placeholder="Nhập lý do (nếu có)..." />
           </div>
-          <div>
-            <label className="block text-sm mb-1">Người duyệt ID</label>
-            <input type="number" className="w-full border rounded px-3 py-2" value={nguoiDuyetId as any} onChange={(e)=>setNguoiDuyetId(Number(e.target.value))} />
+          <div className="bg-gray-50 p-3 rounded border">
+            <div className="text-sm text-gray-600">Người duyệt</div>
+            <div className="font-semibold text-gray-900">{user?.tenDangnhap}</div>
           </div>
         </div>
         <div className="flex justify-end gap-2 mt-4">
           <button onClick={onClose} className="px-3 py-1.5 rounded border">Đóng</button>
-          <button disabled={pheDuyetMut.isPending || !nguoiDuyetId} onClick={onSubmit} className="px-3 py-1.5 rounded bg-black text-white disabled:opacity-50">Xác nhận</button>
+          <button disabled={pheDuyetMut.isPending} onClick={onSubmit} className="px-3 py-1.5 rounded bg-black text-white disabled:opacity-50">Xác nhận</button>
         </div>
       </div>
     </div>
@@ -107,23 +141,43 @@ export default function NghiPhepList() {
 
   const onSubmit = async (form: Partial<NghiPhep>) => {
     try {
-      const payload: any = { ...form, nhanVien: form.nhanVien }
+      // Calculate số ngày nghỉ
+      let soNgayNghi = 0
+      if (form.ngayBatDau && form.ngayKetThuc) {
+        const start = new Date(form.ngayBatDau)
+        const end = new Date(form.ngayKetThuc)
+        soNgayNghi = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
+      }
+      
+      const payload: any = { 
+        nhanVien: form.nhanVien,
+        ngayBatDau: form.ngayBatDau,
+        ngayKetThuc: form.ngayKetThuc,
+        soNgayNghi: soNgayNghi,
+        lyDo: form.lyDo,
+        loaiNghi: form.loaiNghi
+      }
+      
       if ((showForm as any)?.nghiphep_id) {
         await updateMut.mutateAsync({ id: (showForm as any).nghiphep_id, body: payload })
       } else {
         await createMut.mutateAsync(payload)
       }
       setShowForm(null)
-    } catch {}
+    } catch (err: any) {
+      alert(err?.response?.data?.message || 'Đăng ký thất bại')
+    }
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Nghỉ phép</h1>
-        <div className="flex gap-2">
-          <button onClick={()=>setShowForm({})} className="bg-black text-white px-3 py-1.5 rounded">Đăng ký</button>
-        </div>
+        {isEmployee && (
+          <div className="flex gap-2">
+            <button onClick={()=>setShowForm({})} className="bg-black text-white px-3 py-1.5 rounded">Đăng ký</button>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-2">
@@ -156,17 +210,14 @@ export default function NghiPhepList() {
                 <tr key={np.nghiphep_id} className="border-t">
                   <td className="p-2">{np.nghiphep_id}</td>
                   <td className="p-2">{np.nhanVien?.ho_ten || np.nhanVien?.nhanvien_id || '-'}</td>
-                  <td className="p-2">{np.tu_ngay}</td>
-                  <td className="p-2">{np.den_ngay}</td>
-                  <td className="p-2">{np.loai || '-'}</td>
+                  <td className="p-2">{np.ngayBatDau || np.tu_ngay || '-'}</td>
+                  <td className="p-2">{np.ngayKetThuc || np.den_ngay || '-'}</td>
+                  <td className="p-2">{np.loaiNghi || np.loai || '-'}</td>
                   <td className="p-2">{np.trangThai || '-'}</td>
                   {!isEmployee && (
                     <td className="p-2 flex gap-2">
                       {np.trangThai === 'CHO_DUYET' && (
-                        <>
-                          <button onClick={()=>setApproveId(np.nghiphep_id)} className="px-2 py-1 border rounded">Phê duyệt</button>
-                          <button onClick={()=>setShowForm(np)} className="px-2 py-1 border rounded">Sửa</button>
-                        </>
+                        <button onClick={()=>setApproveId(np.nghiphep_id)} className="px-2 py-1 border rounded">Phê duyệt</button>
                       )}
                       <button onClick={()=>deleteMut.mutate(np.nghiphep_id)} className="px-2 py-1 border rounded text-red-600">Xoá</button>
                     </td>

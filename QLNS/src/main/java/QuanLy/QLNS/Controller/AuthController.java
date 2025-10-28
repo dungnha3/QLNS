@@ -15,7 +15,7 @@ import QuanLy.QLNS.util.JwtUtil;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping(value = "/api/auth", produces = "application/json;charset=UTF-8")
 @CrossOrigin(origins = "*")
 public class AuthController {
     

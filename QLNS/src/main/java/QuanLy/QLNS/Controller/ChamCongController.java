@@ -18,17 +18,32 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
+import QuanLy.QLNS.dto.ChamCongGPSRequest;
 import QuanLy.QLNS.Entity.ChamCong;
 import QuanLy.QLNS.Service.ChamCongService;
 
 @RestController
-@RequestMapping("/api/chamcong")
+@RequestMapping(value = "/api/chamcong", produces = "application/json;charset=UTF-8")
 public class ChamCongController {
 
 	private final ChamCongService service;
 
 	public ChamCongController(ChamCongService service) {
 		this.service = service;
+	}
+	
+	@PostMapping("/gps")
+	public ResponseEntity<Map<String, Object>> chamCongGPS(@RequestBody ChamCongGPSRequest request) {
+		Map<String, Object> response = service.chamCongGPS(request);
+		return ResponseEntity.ok(response);
+	}
+	
+	@GetMapping("/status/{nhanVienId}")
+	public ResponseEntity<Map<String, Object>> getTrangThaiChamCong(@PathVariable Long nhanVienId) {
+		Map<String, Object> response = service.getTrangThaiChamCongHomNay(nhanVienId);
+		return ResponseEntity.ok(response);
 	}
 
 	@GetMapping

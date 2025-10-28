@@ -20,7 +20,7 @@ import QuanLy.QLNS.Entity.HopDong;
 import QuanLy.QLNS.Service.HopDongService;
 
 @RestController
-@RequestMapping("/api/hopdong")
+@RequestMapping(value = "/api/hopdong", produces = "application/json;charset=UTF-8")
 public class HopDongController {
 
 	private final HopDongService service;

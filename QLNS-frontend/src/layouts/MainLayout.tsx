@@ -3,11 +3,31 @@ import { useAuthStore } from '../stores/auth'
 import api from '../api/client'
 import { useState } from 'react'
 
+interface MenuItem {
+  path: string
+  label: string
+  icon: string
+}
+
+interface MenuGroup {
+  title: string
+  icon: string
+  roles: string[]
+  items: MenuItem[]
+  defaultOpen?: boolean
+}
+
 export default function MainLayout() {
   const location = useLocation()
   const nav = useNavigate()
   const { user, logout } = useAuthStore()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
+    'nhansu': true,
+    'cautru': false,
+    'congviec': true,
+    'hethong': false,
+  })
 
   const onLogout = async () => {
     try {
@@ -17,24 +37,65 @@ export default function MainLayout() {
     nav('/login', { replace: true })
   }
 
-  const menuItems = [
-    { path: '/', label: 'Dashboard', icon: '📊', roles: ['ADMIN', 'MANAGER', 'EMPLOYEE'] },
-    { path: '/phongban', label: 'Phòng ban', icon: '🏢', roles: ['ADMIN', 'MANAGER'] },
-    { path: '/hopdong', label: 'Hợp đồng', icon: '📄', roles: ['ADMIN', 'MANAGER', 'EMPLOYEE'] },
-    { path: '/chamcong', label: 'Chấm công', icon: '⏰', roles: ['ADMIN', 'MANAGER', 'EMPLOYEE'] },
-    { path: '/bangluong', label: 'Bảng lương', icon: '💰', roles: ['ADMIN', 'MANAGER', 'EMPLOYEE'] },
-    { path: '/nghiphep', label: 'Nghỉ phép', icon: '🏖️', roles: ['ADMIN', 'MANAGER', 'EMPLOYEE'] },
-    { path: '/tai-khoan', label: 'Tài khoản', icon: '👤', roles: ['ADMIN'] },
-    { path: '/nhanvien', label: 'Nhân viên', icon: '👥', roles: ['ADMIN', 'MANAGER'] },
+  const toggleGroup = (groupKey: string) => {
+    setOpenGroups(prev => ({ ...prev, [groupKey]: !prev[groupKey] }))
+  }
+
+  // Menu groups theo role
+  const menuGroups: MenuGroup[] = user?.role === 'EMPLOYEE' ? [
+    {
+      title: 'Trang chủ',
+      icon: '🏠',
+      roles: ['EMPLOYEE'],
+      defaultOpen: true,
+      items: [
+        { path: '/dashboard', label: 'Dashboard', icon: '📊' },
+      ]
+    },
+  ] : [
+    {
+      title: 'Quản lý nhân sự & Tổ chức',
+      icon: '👥',
+      roles: ['ADMIN', 'MANAGER'],
+      defaultOpen: true,
+      items: [
+        { path: '/phongban', label: 'Nhân viên theo phòng ban', icon: '🏢' },
+        { path: '/chucvu', label: 'Chức vụ', icon: '🎯' },
+        { path: '/hopdong', label: 'Hợp đồng', icon: '📋' },
+      ]
+    },
+    {
+      title: 'Quản lý công việc',
+      icon: '⏰',
+      roles: ['ADMIN', 'MANAGER'],
+      defaultOpen: true,
+      items: [
+        { path: '/chamcong', label: 'Chấm công', icon: '⏰' },
+        { path: '/nghiphep', label: 'Duyệt nghỉ phép', icon: '🏖️' },
+        { path: '/bangluong', label: 'Bảng lương', icon: '💰' },
+      ]
+    },
+    {
+      title: 'Hệ thống',
+      icon: '⚙️',
+      roles: ['ADMIN'],
+      items: [
+        { path: '/tai-khoan', label: 'Tài khoản', icon: '👤' },
+      ]
+    },
   ]
 
-  const filteredMenuItems = menuItems.filter(item => 
-    !user?.role || item.roles.includes(user.role)
+  const filteredGroups = menuGroups.filter(group => 
+    !user?.role || group.roles.includes(user.role)
   )
 
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/'
     return location.pathname.startsWith(path)
+  }
+
+  const isGroupActive = (items: MenuItem[]) => {
+    return items.some(item => isActive(item.path))
   }
 
   return (
@@ -55,7 +116,7 @@ export default function MainLayout() {
       `}>
         {/* Logo & Brand */}
         <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-100">
-          <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
             <span className="text-white text-xl font-bold">Q</span>
           </div>
           <div>
@@ -66,8 +127,8 @@ export default function MainLayout() {
 
         {/* User Profile */}
         <div className="px-4 py-4 border-b border-gray-100">
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-primary-50 to-blue-50">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center shadow-md">
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center shadow-md">
               <span className="text-white font-semibold text-lg">
                 {user?.tenDangnhap?.charAt(0).toUpperCase()}
               </span>
@@ -85,47 +146,58 @@ export default function MainLayout() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
-          {filteredMenuItems.map((item) => {
-            const active = isActive(item.path)
+        <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
+          {filteredGroups.map((group, groupIdx) => {
+            const groupKey = groupIdx.toString()
+            const isOpen = openGroups[groupKey] ?? (group.defaultOpen || false)
+            const hasActiveItem = isGroupActive(group.items)
+            
             return (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setSidebarOpen(false)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  padding: '0.75rem 1rem',
-                  borderRadius: '0.75rem',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  transition: 'all 0.2s',
-                  textDecoration: 'none',
-                  background: active ? 'linear-gradient(to right, #2563eb, #1d4ed8)' : 'transparent',
-                  color: active ? '#ffffff' : '#374151',
-                  boxShadow: active ? '0 10px 15px -3px rgba(37, 99, 235, 0.3)' : 'none',
-                }}
-                onMouseEnter={(e) => {
-                  if (!active) {
-                    e.currentTarget.style.backgroundColor = '#f9fafb'
-                    e.currentTarget.style.color = '#2563eb'
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!active) {
-                    e.currentTarget.style.backgroundColor = 'transparent'
-                    e.currentTarget.style.color = '#374151'
-                  }
-                }}
-              >
-                <span style={{ fontSize: '1.25rem', flexShrink: 0 }}>{item.icon}</span>
-                <span style={{ flex: 1, color: active ? '#ffffff' : 'inherit' }}>{item.label}</span>
-                {active && (
-                  <div style={{ width: '0.375rem', height: '0.375rem', backgroundColor: 'white', borderRadius: '9999px', flexShrink: 0 }} />
+              <div key={groupIdx} className="mb-2">
+                {/* Group Header */}
+                <button
+                  onClick={() => toggleGroup(groupKey)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                    hasActiveItem 
+                      ? 'bg-blue-50 text-blue-700' 
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <span className="text-lg">{group.icon}</span>
+                  <span className="flex-1 text-left">{group.title}</span>
+                  <svg
+                    className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Group Items */}
+                {isOpen && (
+                  <div className="mt-1 ml-2 space-y-1">
+                    {group.items.map((item) => {
+                      const active = isActive(item.path)
+                      return (
+                        <Link
+                          key={item.path}
+                          to={item.path}
+                          onClick={() => setSidebarOpen(false)}
+                          className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                            active
+                              ? 'bg-blue-500 text-white'
+                              : 'text-gray-600 hover:bg-gray-50 hover:text-blue-600'
+                          }`}
+                        >
+                          <span className="flex-1">{item.label}</span>
+                        </Link>
+                      )
+                    })}
+                  </div>
                 )}
-              </Link>
+              </div>
             )
           })}
         </nav>
@@ -157,7 +229,7 @@ export default function MainLayout() {
             </button>
             <div>
               <h2 className="text-lg font-semibold text-gray-900">
-                {filteredMenuItems.find(item => isActive(item.path))?.label || 'Dashboard'}
+                {filteredGroups.flatMap(g => g.items).find(item => isActive(item.path))?.label || 'QLNS'}
               </h2>
               <p className="text-sm text-gray-500">
                 Xin chào, {user?.tenDangnhap}

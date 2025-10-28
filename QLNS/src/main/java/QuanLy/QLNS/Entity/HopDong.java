@@ -18,7 +18,7 @@ public class HopDong {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long hopdong_id;
     
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, columnDefinition = "NVARCHAR(50)")
     private String loai_hopdong; // THU_VIEC, CHINH_THUC, HOP_TAC_VIEN
     
     @Column(nullable = false)
@@ -33,10 +33,10 @@ public class HopDong {
     @Column(name = "luong_co_ban", precision = 15, scale = 2)
     private BigDecimal luongCoBan;
     
-    @Column(name = "trang_thai", length = 50)
+    @Column(name = "trang_thai", columnDefinition = "NVARCHAR(50)")
     private String trangThai; // CON_HIEU_LUC, HET_HAN, HUY
     
-    @Column(name = "ghi_chu", columnDefinition = "TEXT")
+    @Column(name = "ghi_chu", columnDefinition = "NVARCHAR(MAX)")
     private String ghiChu;
     
     @ManyToOne

@@ -18,13 +18,13 @@ public class PhongBan {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long phongban_id;
     
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, columnDefinition = "NVARCHAR(100)")
     private String dia_diem;
     
-    @Column(nullable = false, length = 200)
+    @Column(nullable = false, columnDefinition = "NVARCHAR(200)")
     private String ten_phongban;
     
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String mo_ta;
     
     @Column(name = "so_luong_nhanvien")

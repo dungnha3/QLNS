@@ -1,6 +1,7 @@
 package QuanLy.QLNS.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -35,6 +36,32 @@ public interface BangLuongService {
      * @return BangLuong đã được tính toán
      */
     BangLuong tinhLuongTuDong(Long nhanVienId, int thang, int nam);
+    
+    /**
+     * Preview tính lương (không lưu vào DB)
+     * @param nhanVienId ID nhân viên
+     * @param thang Tháng
+     * @param nam Năm
+     * @return Map chứa thông tin preview
+     */
+    Map<String, Object> previewTinhLuong(Long nhanVienId, int thang, int nam);
+    
+    /**
+     * Tính lương hàng loạt cho tất cả nhân viên
+     * @param thang Tháng
+     * @param nam Năm
+     * @param phongBanId ID phòng ban (optional)
+     * @return Danh sách bảng lương đã tạo
+     */
+    List<BangLuong> tinhLuongHangLoat(int thang, int nam, Long phongBanId);
+    
+    /**
+     * Cập nhật trạng thái bảng lương
+     * @param id ID bảng lương
+     * @param trangThai Trạng thái mới
+     * @return BangLuong đã cập nhật
+     */
+    BangLuong capNhatTrangThai(Long id, String trangThai);
 }
 
 

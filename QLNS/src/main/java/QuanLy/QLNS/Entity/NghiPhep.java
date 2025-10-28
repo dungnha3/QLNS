@@ -22,7 +22,7 @@ public class NghiPhep {
     @JoinColumn(name = "nhanvien_id", nullable = false)
     private NhanVien nhanVien;
     
-    @Column(name = "loai_nghi", nullable = false, length = 50)
+    @Column(name = "loai_nghi", nullable = false, columnDefinition = "NVARCHAR(50)")
     private String loaiNghi; // PHEP_NAM, OM, KHONG_LUONG, KET_HON, TANG, CON_OM
     
     @Column(name = "ngay_bat_dau", nullable = false)
@@ -34,10 +34,10 @@ public class NghiPhep {
     @Column(name = "so_ngay_nghi", nullable = false)
     private Integer soNgayNghi;
     
-    @Column(name = "ly_do", columnDefinition = "TEXT")
+    @Column(name = "ly_do", columnDefinition = "NVARCHAR(MAX)")
     private String lyDo;
     
-    @Column(name = "trang_thai", nullable = false, length = 50)
+    @Column(name = "trang_thai", nullable = false, columnDefinition = "NVARCHAR(50)")
     private String trangThai; // CHO_DUYET, DA_DUYET, TU_CHOI
     
     @ManyToOne
@@ -47,7 +47,7 @@ public class NghiPhep {
     @Column(name = "ngay_duyet")
     private LocalDateTime ngayDuyet;
     
-    @Column(name = "ghi_chu_duyet", columnDefinition = "TEXT")
+    @Column(name = "ghi_chu_duyet", columnDefinition = "NVARCHAR(MAX)")
     private String ghiChuDuyet;
     
     @Column(name = "ngay_tao")

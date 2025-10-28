@@ -1,13 +1,17 @@
 package QuanLy.QLNS.Controller;
 
 import java.net.URI;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -20,7 +24,8 @@ import QuanLy.QLNS.Entity.BangLuong;
 import QuanLy.QLNS.Service.BangLuongService;
 
 @RestController
-@RequestMapping("/api/bangluong")
+@RequestMapping(value = "/api/bangluong", produces = "application/json;charset=UTF-8")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class BangLuongController {
 
 	private final BangLuongService service;
@@ -75,6 +80,64 @@ public class BangLuongController {
 			BangLuong bangLuong = service.tinhLuongTuDong(nhanVienId, thang, nam);
 			return ResponseEntity.ok(bangLuong);
 		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().build();
+		}
+	}
+	
+	/**
+	 * Preview tính lương (không lưu vào DB)
+	 * GET /api/bangluong/preview?nhanVienId=1&thang=10&nam=2024
+	 */
+	@GetMapping("/preview")
+	public ResponseEntity<Map<String, Object>> previewTinhLuong(
+			@RequestParam Long nhanVienId,
+			@RequestParam int thang,
+			@RequestParam int nam) {
+		try {
+			Map<String, Object> preview = service.previewTinhLuong(nhanVienId, thang, nam);
+			return ResponseEntity.ok(preview);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().build();
+		}
+	}
+	
+	/**
+	 * Tính lương hàng loạt
+	 * POST /api/bangluong/tinh-hang-loat?thang=10&nam=2024&phongBanId=1
+	 */
+	@PostMapping("/tinh-hang-loat")
+	public ResponseEntity<Map<String, Object>> tinhLuongHangLoat(
+			@RequestParam int thang,
+			@RequestParam int nam,
+			@RequestParam(required = false) Long phongBanId) {
+		try {
+			List<BangLuong> results = service.tinhLuongHangLoat(thang, nam, phongBanId);
+			Map<String, Object> response = new java.util.HashMap<>();
+			response.put("success", true);
+			response.put("count", results.size());
+			response.put("data", results);
+			return ResponseEntity.ok(response);
+		} catch (Exception e) {
+			Map<String, Object> error = new java.util.HashMap<>();
+			error.put("success", false);
+			error.put("message", e.getMessage());
+			return ResponseEntity.badRequest().body(error);
+		}
+	}
+	
+	/**
+	 * Cập nhật trạng thái bảng lương
+	 * PATCH /api/bangluong/{id}/trang-thai
+	 */
+	@PatchMapping("/{id}/trang-thai")
+	public ResponseEntity<BangLuong> capNhatTrangThai(
+			@PathVariable Long id,
+			@RequestBody Map<String, String> body) {
+		try {
+			String trangThai = body.get("trangThai");
+			BangLuong updated = service.capNhatTrangThai(id, trangThai);
+			return ResponseEntity.ok(updated);
+		} catch (Exception e) {
 			return ResponseEntity.badRequest().build();
 		}
 	}

@@ -14,48 +14,97 @@ export default function PhongBanDetail() {
   if (error || !pb) return <div className="text-red-600">Không tải được phòng ban</div>
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Phòng ban #{pb.phongban_id} - {pb.ten_phongban}</h1>
-        <Link to="/phongban" className="text-sm text-blue-600">Quay lại danh sách</Link>
-      </div>
-
-      <div className="bg-white p-4 rounded shadow grid grid-cols-2 gap-3">
-        <Field label="Tên phòng ban" value={pb.ten_phongban} />
-        <Field label="Địa điểm" value={pb.dia_diem} />
-        <div className="col-span-2">
-          <Field label="Mô tả" value={pb.mo_ta || '-'} />
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Link 
+          to="/phongban" 
+          className="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+        >
+          ←
+        </Link>
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold text-gray-900">{pb.ten_phongban}</h1>
+          <p className="text-sm text-gray-500">Danh sách nhân viên trong phòng ban</p>
         </div>
-        <Field label="Số lượng nhân viên" value={pb.soLuongNhanVien ?? nhanViens.length} />
       </div>
 
-      <div className="bg-white rounded shadow overflow-x-auto">
-        <div className="px-4 py-3 font-medium">Nhân viên trong phòng</div>
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-gray-50 text-left">
-              <th className="p-2">ID</th>
-              <th className="p-2">Họ tên</th>
-              <th className="p-2">Email</th>
-              <th className="p-2">Giới tính</th>
-            </tr>
-          </thead>
-          <tbody>
-            {nhanViens.map((nv: any) => (
-              <tr key={nv.nhanvien_id} className="border-t">
-                <td className="p-2">{nv.nhanvien_id}</td>
-                <td className="p-2">{nv.ho_ten}</td>
-                <td className="p-2">{nv.email}</td>
-                <td className="p-2">{nv.gioi_tinh}</td>
-              </tr>
-            ))}
-            {nhanViens.length === 0 && (
-              <tr>
-                <td className="p-3 text-center text-gray-500" colSpan={4}>Chưa có nhân viên thuộc phòng này</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+      {/* Thông tin phòng ban */}
+      <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <div className="text-xs font-medium text-blue-600 mb-1">📍 Địa điểm</div>
+            <div className="font-semibold text-gray-900">{pb.dia_diem}</div>
+          </div>
+          <div>
+            <div className="text-xs font-medium text-blue-600 mb-1">👥 Số lượng</div>
+            <div className="font-semibold text-gray-900">{nhanViens.length} nhân viên</div>
+          </div>
+          <div className="md:col-span-1">
+            <div className="text-xs font-medium text-blue-600 mb-1">📝 Mô tả</div>
+            <div className="text-sm text-gray-700">{pb.mo_ta || 'Không có mô tả'}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Danh sách nhân viên */}
+      <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        <div className="px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+          <h2 className="text-lg font-semibold">Danh sách nhân viên ({nhanViens.length})</h2>
+        </div>
+        
+        {nhanViens.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-5xl mb-3">👤</div>
+            <p className="text-gray-500">Chưa có nhân viên trong phòng ban này</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50 text-left border-b">
+                  <th className="px-4 py-3 text-sm font-semibold text-gray-700">ID</th>
+                  <th className="px-4 py-3 text-sm font-semibold text-gray-700">Họ tên</th>
+                  <th className="px-4 py-3 text-sm font-semibold text-gray-700">Email</th>
+                  <th className="px-4 py-3 text-sm font-semibold text-gray-700">Chức vụ</th>
+                  <th className="px-4 py-3 text-sm font-semibold text-gray-700">Giới tính</th>
+                  <th className="px-4 py-3 text-sm font-semibold text-gray-700 text-center">Hành động</th>
+                </tr>
+              </thead>
+              <tbody>
+                {nhanViens.map((nv: any) => (
+                  <tr key={nv.nhanvien_id} className="border-b hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-3 text-sm">#{nv.nhanvien_id}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                          {nv.ho_ten?.charAt(0)}
+                        </div>
+                        <span className="font-medium text-gray-900">{nv.ho_ten}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{nv.email}</td>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {nv.chucVu?.ten_chucvu || 'Chưa có'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{nv.gioi_tinh}</td>
+                    <td className="px-4 py-3 text-center">
+                      <Link
+                        to={`/nhanvien/${nv.nhanvien_id}`}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
+                      >
+                        <span>👁️</span>
+                        <span>Chi tiết</span>
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   )

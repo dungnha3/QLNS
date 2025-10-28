@@ -18,7 +18,7 @@ import QuanLy.QLNS.dto.ApiResponse;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/tai-khoan")
+@RequestMapping(value = "/api/tai-khoan", produces = "application/json;charset=UTF-8")
 @CrossOrigin(origins = "*")
 public class TaiKhoanController {
     

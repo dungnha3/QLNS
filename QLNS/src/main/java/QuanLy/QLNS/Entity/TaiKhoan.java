@@ -32,18 +32,18 @@ public class TaiKhoan {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long taikhoan_id;
     
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, columnDefinition = "NVARCHAR(255)")
     @NotBlank(message = "Mật khẩu không được để trống")
     @Size(min = 6, message = "Mật khẩu phải có ít nhất 6 ký tự")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String mat_khau;
     
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, columnDefinition = "NVARCHAR(20)")
     @NotBlank(message = "Quyền hạn không được để trống")
     @Pattern(regexp = "ADMIN|MANAGER|EMPLOYEE", message = "Quyền hạn phải là ADMIN, MANAGER hoặc EMPLOYEE")
     private String quyen_han; // ADMIN, MANAGER, EMPLOYEE
     
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false, unique = true, columnDefinition = "NVARCHAR(50)")
     @NotBlank(message = "Tên đăng nhập không được để trống")
     @Size(min = 3, max = 50, message = "Tên đăng nhập phải từ 3-50 ký tự")
     private String ten_dangnhap;

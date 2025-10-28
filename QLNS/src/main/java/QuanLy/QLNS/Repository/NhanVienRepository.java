@@ -58,4 +58,8 @@ public interface NhanVienRepository extends JpaRepository<NhanVien, Long> {
     // Tìm nhân viên theo giới tính
     @Query("SELECT n FROM NhanVien n WHERE n.gioi_tinh = :gioiTinh")
     List<NhanVien> findByGioiTinh(@Param("gioiTinh") String gioiTinh);
+    
+    // Tìm theo phòng ban ID
+    @Query("SELECT n FROM NhanVien n WHERE n.phongBan.phongban_id = :phongBanId")
+    List<NhanVien> findByPhongBan_PhongbanId(@Param("phongBanId") Long phongBanId);
 }

@@ -6,6 +6,7 @@ export type TaiKhoan = {
   ten_dangnhap: string
   quyen_han: 'ADMIN' | 'MANAGER' | 'EMPLOYEE' | string
   mat_khau?: string
+  nhanVien?: { nhanvien_id: number; ho_ten?: string } | number
 }
 
 export type Page<T> = {

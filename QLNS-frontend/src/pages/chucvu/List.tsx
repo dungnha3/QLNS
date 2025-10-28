@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import type { ChucVu } from '../../api/chucvu'
 import { useChucVuList, useCreateChucVu, useUpdateChucVu, useDeleteChucVu } from '../../api/chucvu'
+import { useNhanVienList } from '../../api/nhanvien'
 
 function CVForm({ initial, onSubmit, onCancel, submitting }: { initial?: Partial<ChucVu>; onSubmit: (v: Partial<ChucVu>) => void; onCancel: () => void; submitting?: boolean }) {
   const [form, setForm] = useState<Partial<ChucVu>>({
@@ -35,12 +37,18 @@ export default function ChucVuList() {
   const [page, setPage] = useState(0)
   const [size] = useState(10)
   const [showForm, setShowForm] = useState<null | Partial<ChucVu>>(null)
+  const [expandedCV, setExpandedCV] = useState<number | null>(null)
   const { data, isLoading, error } = useChucVuList(page, size)
+  const { data: nvPage } = useNhanVienList(0, 100, '')
   const createMut = useCreateChucVu()
   const updateMut = useUpdateChucVu()
   const deleteMut = useDeleteChucVu()
 
   const pageData = data || { content: [], totalElements: 0, totalPages: 0, number: 0, size }
+  
+  const getNhanViensForChucVu = (chucvuId: number) => {
+    return (nvPage?.content || []).filter((nv: any) => nv?.chucVu?.chucvu_id === chucvuId)
+  }
 
   const onSubmit = async (form: Partial<ChucVu>) => {
     try {
@@ -54,55 +62,145 @@ export default function ChucVuList() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Chức vụ</h1>
-        <button onClick={()=>setShowForm({})} className="bg-black text-white px-3 py-1.5 rounded">Thêm mới</button>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Chức vụ</h1>
+          <p className="text-sm text-gray-500 mt-1">Quản lý các chức vụ và xem nhân viên theo chức vụ</p>
+        </div>
+        <button 
+          onClick={()=>setShowForm({})} 
+          className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2.5 rounded-lg font-medium shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all"
+        >
+          <span>➕</span>
+          <span>Thêm mới</span>
+        </button>
       </div>
+      
       {isLoading ? (
-        <div>Đang tải...</div>
+        <div className="text-center py-12">
+          <div className="inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="mt-2 text-gray-500">Đang tải...</p>
+        </div>
       ) : error ? (
-        <div className="text-red-600">Lỗi tải dữ liệu</div>
+        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">Lỗi tải dữ liệu</div>
       ) : (
-        <div className="bg-white rounded shadow overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-gray-50 text-left">
-                <th className="p-2">ID</th>
-                <th className="p-2">Tên chức vụ</th>
-                <th className="p-2">Mô tả</th>
-                <th className="p-2 w-40">Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pageData.content.map((cv) => (
-                <tr key={cv.chucvu_id} className="border-t">
-                  <td className="p-2">{cv.chucvu_id}</td>
-                  <td className="p-2">{cv.ten_chucvu}</td>
-                  <td className="p-2">{cv.mo_ta || '-'}</td>
-                  <td className="p-2 flex gap-2">
-                    <button onClick={()=>setShowForm(cv)} className="px-2 py-1 border rounded">Sửa</button>
-                    <button onClick={()=>deleteMut.mutate(cv.chucvu_id)} className="px-2 py-1 border rounded text-red-600">Xoá</button>
-                  </td>
-                </tr>
-              ))}
-              {pageData.content.length === 0 && (
-                <tr>
-                  <td className="p-3 text-center text-gray-500" colSpan={4}>Không có dữ liệu</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <>
+          <div className="space-y-3">
+            {pageData.content.map((cv) => {
+              const nhanViens = getNhanViensForChucVu(cv.chucvu_id)
+              const isExpanded = expandedCV === cv.chucvu_id
+              
+              return (
+                <div key={cv.chucvu_id} className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+                  {/* Chức vụ header */}
+                  <div className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+                    <button
+                      onClick={() => setExpandedCV(isExpanded ? null : cv.chucvu_id)}
+                      className="flex-1 flex items-center gap-4 text-left"
+                    >
+                      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
+                        <span className="text-white text-xl">🎯</span>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-bold text-gray-900">{cv.ten_chucvu}</h3>
+                        <p className="text-sm text-gray-500">{cv.mo_ta || 'Không có mô tả'}</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
+                          {nhanViens.length} nhân viên
+                        </div>
+                        <svg
+                          className={`w-5 h-5 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </button>
+                    
+                    <div className="flex gap-2 ml-4">
+                      <button
+                        onClick={() => setShowForm(cv)}
+                        className="p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Sửa"
+                      >
+                        📝
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (confirm('Xác nhận xóa chức vụ này?')) deleteMut.mutate(cv.chucvu_id)
+                        }}
+                        className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Xóa"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Danh sách nhân viên */}
+                  {isExpanded && nhanViens.length > 0 && (
+                    <div className="border-t border-gray-200 bg-gray-50">
+                      <div className="px-4 py-3">
+                        <h4 className="text-sm font-semibold text-gray-700 mb-3">Danh sách nhân viên</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {nhanViens.map((nv: any) => (
+                            <Link
+                              key={nv.nhanvien_id}
+                              to={`/nhanvien/${nv.nhanvien_id}`}
+                              className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all"
+                            >
+                              <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                                {nv.ho_ten?.charAt(0)}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-gray-900 truncate">{nv.ho_ten}</div>
+                                <div className="text-xs text-gray-500 truncate">{nv.email}</div>
+                              </div>
+                              <span className="text-blue-500">→</span>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+            
+            {pageData.content.length === 0 && (
+              <div className="text-center py-12 bg-white rounded-xl">
+                <div className="text-6xl mb-4">🎯</div>
+                <p className="text-gray-500">Chưa có chức vụ nào</p>
+              </div>
+            )}
+          </div>
+          
+          <div className="flex items-center justify-between bg-white px-4 py-3 rounded-lg shadow">
+            <div className="text-sm text-gray-600">Tổng: <span className="font-semibold">{pageData.totalElements}</span> chức vụ</div>
+            <div className="flex items-center gap-2">
+              <button 
+                className="px-3 py-1.5 border rounded-lg disabled:opacity-50 hover:bg-gray-50 transition-colors" 
+                disabled={page<=0} 
+                onClick={()=>setPage((p)=>p-1)}
+              >
+                ← Trước
+              </button>
+              <span className="text-sm px-3">Trang {page+1}/{Math.max(1, pageData.totalPages)}</span>
+              <button 
+                className="px-3 py-1.5 border rounded-lg disabled:opacity-50 hover:bg-gray-50 transition-colors" 
+                disabled={page+1>=pageData.totalPages} 
+                onClick={()=>setPage((p)=>p+1)}
+              >
+                Sau →
+              </button>
+            </div>
+          </div>
+        </>
       )}
-      <div className="flex items-center justify-between">
-        <div>Tổng: {pageData.totalElements}</div>
-        <div className="flex items-center gap-2">
-          <button className="px-2 py-1 border rounded" disabled={page<=0} onClick={()=>setPage((p)=>p-1)}>Trước</button>
-          <span>Trang {page+1}/{Math.max(1, pageData.totalPages)}</span>
-          <button className="px-2 py-1 border rounded" disabled={page+1>=pageData.totalPages} onClick={()=>setPage((p)=>p+1)}>Sau</button>
-        </div>
-      </div>
 
       {showForm && (
         <CVForm initial={showForm} submitting={createMut.isPending||updateMut.isPending} onSubmit={onSubmit} onCancel={()=>setShowForm(null)} />

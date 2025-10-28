@@ -21,7 +21,7 @@ import QuanLy.QLNS.Service.NghiPhepService;
 import QuanLy.QLNS.dto.ApprovalRequest;
 
 @RestController
-@RequestMapping("/api/nghiphep")
+@RequestMapping(value = "/api/nghiphep", produces = "application/json;charset=UTF-8")
 public class NghiPhepController {
 
 	private final NghiPhepService service;

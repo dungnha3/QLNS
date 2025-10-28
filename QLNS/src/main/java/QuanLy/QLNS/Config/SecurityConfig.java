@@ -41,7 +41,7 @@ public class SecurityConfig {
                 // Manager and Admin endpoints
                 .requestMatchers("/api/nhanvien/**", "/api/phongban/**", "/api/chucvu/**").hasAnyRole("ADMIN", "MANAGER")
                 // Employee endpoints (all authenticated users)
-                .requestMatchers("/api/chamcong/**", "/api/nghiphep/**", "/api/bangluong/**", "/api/hopdong/**", "/api/danhgia/**").hasAnyRole("ADMIN", "MANAGER", "EMPLOYEE")
+                .requestMatchers("/api/chamcong/**", "/api/nghiphep/**", "/api/bangluong/**", "/api/hopdong/**").hasAnyRole("ADMIN", "MANAGER", "EMPLOYEE")
                 // All other requests need authentication
                 .anyRequest().authenticated()
             )

@@ -4,11 +4,16 @@ import api from './client'
 export type NghiPhep = {
   nghiphep_id: number
   nhanVien: { nhanvien_id: number; ho_ten?: string } | number
-  tu_ngay: string
-  den_ngay: string
+  tu_ngay?: string // For form compatibility
+  den_ngay?: string // For form compatibility
+  ngayBatDau?: string // Backend field
+  ngayKetThuc?: string // Backend field
   so_ngay?: number
+  soNgayNghi?: number // Backend field
   ly_do?: string
+  lyDo?: string // Backend field
   loai?: string
+  loaiNghi?: string // Backend field
   trangThai?: 'CHO_DUYET' | 'DA_DUYET' | 'TU_CHOI' | string
   nguoiDuyetId?: number
   ghiChuDuyet?: string

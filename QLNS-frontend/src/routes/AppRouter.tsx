@@ -1,7 +1,6 @@
 import React from 'react'
 import { BrowserRouter, Navigate, Route, Routes, Outlet } from 'react-router-dom'
 import Login from '../pages/Login'
-import Dashboard from '../pages/Dashboard'
 import MainLayout from '../layouts/MainLayout'
 import { useAuthStore } from '../stores/auth'
 import NhanVienList from '../pages/nhanvien/List'
@@ -14,12 +13,18 @@ import ChamCongList from '../pages/chamcong/List'
 import BangLuongList from '../pages/bangluong/List'
 import NghiPhepList from '../pages/nghiphep/List'
 import TaiKhoanList from '../pages/taikhoan/List'
+import EmployeeDashboard from '../pages/employee/Dashboard'
 
 function RequireAuth({ children, allow }: { children: React.ReactElement; allow?: Array<'ADMIN'|'MANAGER'|'EMPLOYEE'> }) {
   const { token, user } = useAuthStore()
   if (!token) return <Navigate to="/login" replace />
   if (allow && user && user.role && !allow.includes(user.role)) return <Navigate to="/" replace />
   return children
+}
+
+function HomeRedirect() {
+  const { user } = useAuthStore()
+  return <Navigate to={user?.role === 'EMPLOYEE' ? '/dashboard' : '/phongban'} replace />
 }
 
 export default function AppRouter() {
@@ -36,11 +41,19 @@ export default function AppRouter() {
             </RequireAuth>
           }
         >
-          <Route index element={<Dashboard />} />
+          <Route index element={<HomeRedirect />} />
+          <Route
+            path="dashboard"
+            element={
+              <RequireAuth allow={['EMPLOYEE']}>
+                <EmployeeDashboard />
+              </RequireAuth>
+            }
+          />
           <Route
             path="phongban"
             element={
-              <RequireAuth allow={['ADMIN','MANAGER']}>
+              <RequireAuth allow={['ADMIN','MANAGER','EMPLOYEE']}>
                 <SectionOutlet />
               </RequireAuth>
             }
@@ -112,12 +125,11 @@ export default function AppRouter() {
           <Route
             path="nhanvien"
             element={
-              <RequireAuth allow={['ADMIN']}>
+              <RequireAuth allow={['ADMIN','MANAGER']}>
                 <SectionOutlet />
               </RequireAuth>
             }
           >
-            <Route index element={<NhanVienList />} />
             <Route path=":id" element={<NhanVienDetail />} />
           </Route>
         </Route>

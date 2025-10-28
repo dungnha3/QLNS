@@ -2,10 +2,13 @@ package QuanLy.QLNS.Controller;
 
 import java.net.URI;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,9 +23,11 @@ import QuanLy.QLNS.Entity.ChucVu;
 import QuanLy.QLNS.Service.ChucVuService;
 
 @RestController
-@RequestMapping("/api/chucvu")
+@RequestMapping(value = "/api/chucvu", produces = "application/json;charset=UTF-8")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ChucVuController {
 
+	private static final Logger logger = LoggerFactory.getLogger(ChucVuController.class);
 	private final ChucVuService service;
 
 	public ChucVuController(ChucVuService service) {
@@ -32,8 +37,16 @@ public class ChucVuController {
 	@GetMapping
 	public ResponseEntity<Page<ChucVu>> list(@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size) {
-		Pageable pageable = PageRequest.of(page, size);
-		return ResponseEntity.ok(service.getAll(pageable));
+		try {
+			logger.info("Fetching ChucVu list - page: {}, size: {}", page, size);
+			Pageable pageable = PageRequest.of(page, size);
+			Page<ChucVu> result = service.getAll(pageable);
+			logger.info("Successfully fetched {} ChucVu records", result.getTotalElements());
+			return ResponseEntity.ok(result);
+		} catch (Exception e) {
+			logger.error("Error fetching ChucVu list", e);
+			throw e;
+		}
 	}
 
 	@GetMapping("/{id}")
