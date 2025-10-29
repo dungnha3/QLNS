@@ -118,6 +118,11 @@ public class NhanVienController {
 	public ResponseEntity<List<NhanVien>> search(@RequestParam("q") String keyword) {
 		return ResponseEntity.ok(nhanVienService.searchByHoTen(keyword));
 	}
+	
+	@GetMapping("/without-contract")
+	public ResponseEntity<List<NhanVien>> getNhanVienWithoutContract() {
+		return ResponseEntity.ok(nhanVienService.getNhanVienWithoutContract());
+	}
 }
 
 

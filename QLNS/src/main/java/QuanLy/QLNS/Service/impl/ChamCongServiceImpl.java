@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +51,45 @@ public class ChamCongServiceImpl implements ChamCongService {
 	@Override
 	public Page<ChamCong> getAll(Pageable pageable) {
 		return repository.findAll(pageable);
+	}
+	
+	@Override
+	public Page<ChamCong> getAll(Pageable pageable, Long nhanVienId, Integer month, Integer year) {
+		log.info("getAll - nhanVienId: {}, month: {}, year: {}", nhanVienId, month, year);
+		
+		// Nếu không có filter, trả về tất cả
+		if (nhanVienId == null && month == null && year == null) {
+			return repository.findAll(pageable);
+		}
+		
+		// Tạo Specification để filter
+		Specification<ChamCong> spec = (root, query, cb) -> {
+			var predicates = new java.util.ArrayList<jakarta.persistence.criteria.Predicate>();
+			
+			if (nhanVienId != null) {
+				predicates.add(cb.equal(root.get("nhanVien").get("nhanvien_id"), nhanVienId));
+			}
+			
+			if (month != null && year != null) {
+				// Filter theo tháng và năm
+				predicates.add(cb.equal(cb.function("MONTH", Integer.class, root.get("ngay_lam")), month));
+				predicates.add(cb.equal(cb.function("YEAR", Integer.class, root.get("ngay_lam")), year));
+			} else if (year != null) {
+				// Chỉ filter theo năm
+				predicates.add(cb.equal(cb.function("YEAR", Integer.class, root.get("ngay_lam")), year));
+			}
+			
+			// Sort by ngay_lam DESC để hiển thị ngày mới nhất trước
+			if (query != null) {
+				query.orderBy(cb.desc(root.get("ngay_lam")));
+			}
+			
+			return cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
+		};
+		
+		Page<ChamCong> result = repository.findAll(spec, pageable);
+		log.info("Found {} records", result.getTotalElements());
+		return result;
 	}
 
 	@Override

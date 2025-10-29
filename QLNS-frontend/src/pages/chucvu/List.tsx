@@ -8,25 +8,83 @@ function CVForm({ initial, onSubmit, onCancel, submitting }: { initial?: Partial
   const [form, setForm] = useState<Partial<ChucVu>>({
     ten_chucvu: initial?.ten_chucvu || '',
     mo_ta: initial?.mo_ta || '',
+    luong_co_ban: initial?.luong_co_ban || '',
+    mucLuongToiThieu: initial?.mucLuongToiThieu || undefined,
+    mucLuongToiDa: initial?.mucLuongToiDa || undefined,
   })
   const onChange = (k: keyof ChucVu, v: any) => setForm((s) => ({ ...s, [k]: v }))
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center">
-      <div className="bg-white p-4 rounded shadow w-full max-w-xl">
+      <div className="bg-white p-4 rounded shadow w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <h3 className="text-lg font-semibold mb-3">{initial?.chucvu_id ? 'Cập nhật' : 'Thêm'} chức vụ</h3>
         <div className="space-y-3">
           <div>
-            <label className="block text-sm mb-1">Tên chức vụ</label>
-            <input className="w-full border rounded px-3 py-2" value={form.ten_chucvu||''} onChange={(e)=>onChange('ten_chucvu', e.target.value)} />
+            <label className="block text-sm mb-1">Tên chức vụ *</label>
+            <input 
+              className="w-full border rounded px-3 py-2" 
+              value={form.ten_chucvu||''} 
+              onChange={(e)=>onChange('ten_chucvu', e.target.value)}
+              placeholder="Ví dụ: Giám đốc, Trưởng phòng, Nhân viên..."
+              required
+            />
           </div>
           <div>
-            <label className="block text-sm mb-1">Mô tả</label>
-            <textarea className="w-full border rounded px-3 py-2" value={form.mo_ta||''} onChange={(e)=>onChange('mo_ta', e.target.value)} />
+            <label className="block text-sm mb-1">Mô tả *</label>
+            <textarea 
+              className="w-full border rounded px-3 py-2" 
+              value={form.mo_ta||''} 
+              onChange={(e)=>onChange('mo_ta', e.target.value)}
+              placeholder="Mô tả chi tiết về chức vụ..."
+              rows={3}
+              required
+            />
+          </div>
+          
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <h4 className="font-semibold text-sm mb-2 text-blue-900">💰 Thông tin lương</h4>
+            <div className="grid grid-cols-1 gap-3">
+              <div>
+                <label className="block text-sm mb-1">Lương cơ bản *</label>
+                <input 
+                  type="number"
+                  className="w-full border rounded px-3 py-2" 
+                  value={form.luong_co_ban||''} 
+                  onChange={(e)=>onChange('luong_co_ban', e.target.value)}
+                  placeholder="Ví dụ: 15000000"
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">Lương cơ bản mặc định cho chức vụ này</p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm mb-1">Mức lương tối thiểu</label>
+                  <input 
+                    type="number"
+                    className="w-full border rounded px-3 py-2" 
+                    value={form.mucLuongToiThieu??''} 
+                    onChange={(e)=>onChange('mucLuongToiThieu', e.target.value ? Number(e.target.value) : undefined)}
+                    placeholder="Ví dụ: 10000000"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm mb-1">Mức lương tối đa</label>
+                  <input 
+                    type="number"
+                    className="w-full border rounded px-3 py-2" 
+                    value={form.mucLuongToiDa??''} 
+                    onChange={(e)=>onChange('mucLuongToiDa', e.target.value ? Number(e.target.value) : undefined)}
+                    placeholder="Ví dụ: 20000000"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">💡 Khoảng lương cho phép điều chỉnh theo năng lực</p>
+            </div>
           </div>
         </div>
         <div className="flex justify-end gap-2 mt-4">
-          <button onClick={onCancel} className="px-3 py-1.5 rounded border">Hủy</button>
-          <button disabled={submitting} onClick={()=>onSubmit(form)} className="px-3 py-1.5 rounded bg-black text-white disabled:opacity-50">Lưu</button>
+          <button onClick={onCancel} className="px-3 py-1.5 rounded border hover:bg-gray-50 transition-colors">Hủy</button>
+          <button disabled={submitting} onClick={()=>onSubmit(form)} className="px-3 py-1.5 rounded bg-black text-white hover:bg-gray-800 disabled:opacity-50 transition-colors">Lưu</button>
         </div>
       </div>
     </div>
@@ -101,6 +159,24 @@ export default function ChucVuList() {
                       <div className="flex-1">
                         <h3 className="text-lg font-bold text-gray-900">{cv.ten_chucvu}</h3>
                         <p className="text-sm text-gray-500">{cv.mo_ta || 'Không có mô tả'}</p>
+                        <div className="flex items-center gap-4 mt-2 text-sm">
+                          <div className="flex items-center gap-1">
+                            <span className="text-gray-600">💰 Lương CB:</span>
+                            <span className="font-semibold text-green-700">
+                              {cv.luong_co_ban ? Number(cv.luong_co_ban).toLocaleString('vi-VN') + 'đ' : 'Chưa có'}
+                            </span>
+                          </div>
+                          {(cv.mucLuongToiThieu || cv.mucLuongToiDa) && (
+                            <div className="flex items-center gap-1">
+                              <span className="text-gray-600">📊 Khoảng:</span>
+                              <span className="font-medium text-blue-700">
+                                {cv.mucLuongToiThieu ? Number(cv.mucLuongToiThieu).toLocaleString('vi-VN') : '0'}đ
+                                {' - '}
+                                {cv.mucLuongToiDa ? Number(cv.mucLuongToiDa).toLocaleString('vi-VN') : '∞'}đ
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">

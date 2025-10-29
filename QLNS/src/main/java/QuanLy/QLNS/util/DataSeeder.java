@@ -289,8 +289,8 @@ public class DataSeeder implements CommandLineRunner {
         for (int nvIdx = 0; nvIdx < nhanViens.length; nvIdx++) {
             NhanVien nv = nhanViens[nvIdx];
             
-            // Create attendance records for the last 30 days
-            for (int i = 0; i < 30; i++) {
+            // Create attendance records for the last 30 days (KHÔNG bao gồm hôm nay)
+            for (int i = 1; i <= 30; i++) {
                 LocalDate ngayLam = today.minusDays(i);
                 
                 // Skip weekends (Saturday=6, Sunday=7)

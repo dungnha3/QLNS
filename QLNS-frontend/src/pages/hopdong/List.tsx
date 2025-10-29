@@ -5,9 +5,9 @@ import { useCreateHopDong, useDeleteHopDong, useHopDongList, useUpdateHopDong } 
 import { usePhongBanList } from '../../api/phongban'
 import { useAuthStore } from '../../stores/auth'
 import { NhanVienSelect } from '../../components/NhanVienSelect'
-import { useNhanVienDetail } from '../../api/nhanvien'
+import { useNhanVienDetail, useNhanVienWithoutContract } from '../../api/nhanvien'
 
-function HDForm({ initial, onSubmit, onCancel, submitting }: { initial?: Partial<HopDong>; onSubmit: (v: Partial<HopDong>) => void; onCancel: () => void; submitting?: boolean }) {
+function HDForm({ initial, onSubmit, onCancel, submitting, isNewContract }: { initial?: Partial<HopDong>; onSubmit: (v: Partial<HopDong>) => void; onCancel: () => void; submitting?: boolean; isNewContract?: boolean }) {
   const [form, setForm] = useState<Partial<HopDong>>({
     loai_hopdong: (initial?.loai_hopdong as any) || 'CHINH_THUC',
     ngay_batdau: initial?.ngay_batdau || '',
@@ -18,10 +18,15 @@ function HDForm({ initial, onSubmit, onCancel, submitting }: { initial?: Partial
     ghiChu: initial?.ghiChu || '',
     nhanVien: typeof initial?.nhanVien === 'number' ? initial?.nhanVien : (initial?.nhanVien as any)?.nhanvien_id || undefined,
   })
+  const [voThoiHan, setVoThoiHan] = useState(!initial?.ngay_ketthuc)
   const onChange = (k: keyof HopDong, v: any) => setForm((s) => ({ ...s, [k]: v }))
   
+  // Load danh sách nhân viên chưa có hợp đồng (chỉ khi tạo mới)
+  const { data: nhanViensWithoutContract } = useNhanVienWithoutContract()
+  
   // Load thông tin nhân viên khi chọn
-  const { data: selectedEmployee } = useNhanVienDetail(form.nhanVien as number)
+  const nhanVienId = typeof form.nhanVien === 'number' ? form.nhanVien : (form.nhanVien as any)?.nhanvien_id
+  const { data: selectedEmployee } = useNhanVienDetail(nhanVienId)
   
   // Auto-fill lương từ chức vụ nếu chưa có
   useEffect(() => {
@@ -59,7 +64,29 @@ function HDForm({ initial, onSubmit, onCancel, submitting }: { initial?: Partial
           </div>
           <div>
             <label className="block text-sm mb-1">Ngày kết thúc</label>
-            <input type="date" className="input" value={form.ngay_ketthuc||''} onChange={(e)=>onChange('ngay_ketthuc', e.target.value)} />
+            <div className="space-y-2">
+              <input 
+                type="date" 
+                className="input" 
+                value={form.ngay_ketthuc||''} 
+                onChange={(e)=>onChange('ngay_ketthuc', e.target.value)}
+                disabled={voThoiHan}
+              />
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  checked={voThoiHan}
+                  onChange={(e) => {
+                    setVoThoiHan(e.target.checked)
+                    if (e.target.checked) {
+                      onChange('ngay_ketthuc', '')
+                    }
+                  }}
+                  className="rounded"
+                />
+                <span className="text-gray-700">∞ Vô thời hạn</span>
+              </label>
+            </div>
           </div>
           <div>
             <label className="block text-sm mb-1">Trạng thái</label>
@@ -70,13 +97,35 @@ function HDForm({ initial, onSubmit, onCancel, submitting }: { initial?: Partial
             </select>
           </div>
           <div className="col-span-2">
-            <NhanVienSelect
-              value={form.nhanVien as number}
-              onChange={(id) => onChange('nhanVien', id)}
-              label="Nhân viên *"
-              required
-              disabled={!!(initial as any)?.hopdong_id}
-            />
+            {isNewContract ? (
+              <div>
+                <label className="block text-sm mb-1">Nhân viên (chưa có hợp đồng) *</label>
+                <select 
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  value={nhanVienId || ''}
+                  onChange={(e) => onChange('nhanVien', e.target.value ? Number(e.target.value) : null)}
+                  required
+                >
+                  <option value="">-- Chọn nhân viên --</option>
+                  {(nhanViensWithoutContract || []).map(nv => (
+                    <option key={nv.nhanvien_id} value={nv.nhanvien_id}>
+                      {nv.ho_ten} - {nv.email}
+                    </option>
+                  ))}
+                </select>
+                {nhanViensWithoutContract && nhanViensWithoutContract.length === 0 && (
+                  <p className="text-sm text-amber-600 mt-1">⚠️ Tất cả nhân viên đã có hợp đồng</p>
+                )}
+              </div>
+            ) : (
+              <NhanVienSelect
+                value={nhanVienId}
+                onChange={(id) => onChange('nhanVien', id)}
+                label="Nhân viên *"
+                required
+                disabled={!!(initial as any)?.hopdong_id}
+              />
+            )}
           </div>
           
           {/* Hiển thị thông tin nhân viên */}
@@ -142,11 +191,10 @@ function daysUntil(dateStr?: string | null) {
 }
 
 export default function HopDongList() {
-  const [page, setPage] = useState(0)
   const [size] = useState(100) // Lấy tất cả để group
   const [showForm, setShowForm] = useState<null | Partial<HopDong>>(null)
   const [expandedPhongBan, setExpandedPhongBan] = useState<number | null>(null)
-  const { data, isLoading, error } = useHopDongList(page, size)
+  const { data, isLoading, error } = useHopDongList(0, size)
   const { data: phongBanData } = usePhongBanList(0, 100)
   const createMut = useCreateHopDong()
   const updateMut = useUpdateHopDong()
@@ -222,10 +270,10 @@ export default function HopDongList() {
         </div>
         {!isEmployee && (
           <button 
-            onClick={()=>setShowForm({})} 
-            className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-gray-700 transition-colors"
+            onClick={()=>setShowForm({ isNewContract: true } as any)} 
+            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-green-700 transition-colors"
           >
-            <span>Thêm mới</span>
+            <span>➕ Thêm hợp đồng</span>
           </button>
         )}
       </div>
@@ -404,7 +452,13 @@ export default function HopDongList() {
       )}
 
       {showForm && (
-        <HDForm initial={showForm} submitting={createMut.isPending||updateMut.isPending} onSubmit={onSubmit} onCancel={()=>setShowForm(null)} />
+        <HDForm 
+          initial={showForm} 
+          submitting={createMut.isPending||updateMut.isPending} 
+          onSubmit={onSubmit} 
+          onCancel={()=>setShowForm(null)}
+          isNewContract={(showForm as any)?.isNewContract}
+        />
       )}
     </div>
   )

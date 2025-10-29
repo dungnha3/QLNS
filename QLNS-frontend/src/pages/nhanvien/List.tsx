@@ -111,8 +111,10 @@ export default function NhanVienList() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Nhân viên</h1>
-        <button onClick={()=>setShowForm({})} className="bg-black text-white px-3 py-1.5 rounded">Thêm mới</button>
+        <div>
+          <h1 className="text-xl font-semibold">Nhân viên</h1>
+          <p className="text-sm text-gray-500 mt-1">Nhân viên mới được tạo từ trang Tài khoản</p>
+        </div>
       </div>
       <div className="flex gap-2">
         <input placeholder="Tìm theo tên/email" className="border rounded px-3 py-2 w-80" value={q} onChange={(e)=>{ setQ(e.target.value); setPage(0) }} />

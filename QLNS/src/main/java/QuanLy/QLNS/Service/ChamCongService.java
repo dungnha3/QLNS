@@ -15,6 +15,8 @@ import QuanLy.QLNS.Entity.NhanVien;
 public interface ChamCongService {
 
 	Page<ChamCong> getAll(Pageable pageable);
+	
+	Page<ChamCong> getAll(Pageable pageable, Long nhanVienId, Integer month, Integer year);
 
 	Optional<ChamCong> getById(Long id);
 

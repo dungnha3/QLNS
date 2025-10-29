@@ -33,6 +33,8 @@ public interface NhanVienService {
 	boolean existsByEmail(String email);
 	
 	NhanVien save(NhanVien nhanVien);
+	
+	List<NhanVien> getNhanVienWithoutContract();
 
 }
 

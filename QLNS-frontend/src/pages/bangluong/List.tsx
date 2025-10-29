@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { BangLuong } from '../../api/bangluong'
-import { useBangLuongList, useCreateBangLuong, useDeleteBangLuong, useUpdateBangLuong } from '../../api/bangluong'
-import { useChucVuList } from '../../api/chucvu'
+import { useBangLuongList, useCreateBangLuong, useDeleteBangLuong, useUpdateBangLuong, useTinhLuongHangLoat } from '../../api/bangluong'
+import { usePhongBanList } from '../../api/phongban'
 import { useAuthStore } from '../../stores/auth'
 import { TinhLuongModal } from './TinhLuongModal'
 
@@ -70,11 +70,15 @@ export default function BangLuongList() {
   const [page, setPage] = useState(0)
   const [size] = useState(100) // Lấy tất cả để group
   const [trangThai, setTrangThai] = useState<string>('')
+  const today = new Date()
+  const [thang, setThang] = useState(today.getMonth() + 1)
+  const [nam, setNam] = useState(today.getFullYear())
   const [showForm, setShowForm] = useState<null | Partial<BangLuong>>(null)
   const [showAuto, setShowAuto] = useState(false)
-  const [expandedChucVu, setExpandedChucVu] = useState<number | null>(null)
+  const [expandedPhongBan, setExpandedPhongBan] = useState<number | null>(null)
   const { data, isLoading, error } = useBangLuongList(page, size, trangThai || undefined)
-  const { data: chucVuData } = useChucVuList(0, 100)
+  const { data: phongBanData } = usePhongBanList(0, 100)
+  const tinhHangLoatMut = useTinhLuongHangLoat()
   const createMut = useCreateBangLuong()
   const updateMut = useUpdateBangLuong()
   const deleteMut = useDeleteBangLuong()
@@ -82,25 +86,33 @@ export default function BangLuongList() {
   const isEmployee = user?.role === 'EMPLOYEE'
 
   const pageData = data || { content: [], totalElements: 0, totalPages: 0, number: 0, size }
-  const chucVus = chucVuData?.content || []
-  const filteredContent = useMemo(() => {
-    if (!isEmployee) return pageData.content
-    const myId = user?.nhanVienId
-    return (pageData.content || []).filter((bl: any) => (bl.nhanVien?.nhanvien_id ?? bl.nhanVien) === myId)
-  }, [isEmployee, pageData, user])
+  const phongBans = phongBanData?.content || []
   
-  // Group bảng lương theo chức vụ
-  const bangLuongByChucVu = useMemo(() => {
+  // Filter theo tháng/năm
+  const filteredByMonth = useMemo(() => {
+    return pageData.content.filter((bl: any) => {
+      return bl.thang === thang && bl.nam === nam
+    })
+  }, [pageData.content, thang, nam])
+  
+  // Group bảng lương theo phòng ban
+  const bangLuongByPhongBan = useMemo(() => {
     const grouped: Record<number, any[]> = {}
-    filteredContent.forEach((bl: any) => {
-      const chucvuId = bl.nhanVien?.chucVu?.chucvu_id
-      if (chucvuId) {
-        if (!grouped[chucvuId]) grouped[chucvuId] = []
-        grouped[chucvuId].push(bl)
+    filteredByMonth.forEach((bl: any) => {
+      const pbId = bl.nhanVien?.phongBan?.phongban_id
+      if (pbId) {
+        if (!grouped[pbId]) grouped[pbId] = []
+        grouped[pbId].push(bl)
       }
     })
     return grouped
-  }, [filteredContent])
+  }, [filteredByMonth])
+
+  const filteredContent = useMemo(() => {
+    if (!isEmployee) return filteredByMonth
+    const myId = user?.nhanVienId
+    return (filteredByMonth || []).filter((bl: any) => (bl.nhanVien?.nhanvien_id ?? bl.nhanVien) === myId)
+  }, [isEmployee, filteredByMonth, user])
 
   const onSubmit = async (form: Partial<BangLuong>) => {
     try {
@@ -128,22 +140,60 @@ export default function BangLuongList() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Bảng lương</h1>
-          <p className="text-sm text-gray-500 mt-1">Quản lý lương theo chức vụ</p>
+          <p className="text-sm text-gray-500 mt-1">Quản lý lương theo phòng ban - Tháng {thang}/{nam}</p>
         </div>
         {!isEmployee && (
-          <button onClick={()=>setShowAuto(true)} className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-gray-700 transition-colors">
-            <span>Tính lương tự động</span>
-          </button>
+          <div className="flex gap-2">
+            <button 
+              onClick={async () => {
+                if (confirm(`Tính lương tự động cho TẤT CẢ nhân viên tháng ${thang}/${nam}?`)) {
+                  try {
+                    await tinhHangLoatMut.mutateAsync({ thang, nam })
+                    alert('Tính lương hàng loạt thành công!')
+                  } catch (e: any) {
+                    alert('Lỗi: ' + (e?.response?.data?.message || e?.message || 'Tính lương thất bại'))
+                  }
+                }
+              }}
+              disabled={tinhHangLoatMut.isPending}
+              className="flex items-center gap-2 bg-green-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 transition-colors"
+            >
+              <span>⚡ Tính hàng loạt</span>
+            </button>
+            <button onClick={()=>setShowAuto(true)} className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-gray-700 transition-colors">
+              <span>Tính từng người</span>
+            </button>
+          </div>
         )}
       </div>
 
-      <div className="flex items-center gap-2 bg-white p-4 rounded-lg shadow">
-        <select className="border border-gray-300 rounded-lg px-3 py-2" value={trangThai} onChange={(e)=>{ setTrangThai(e.target.value); setPage(0) }}>
-          <option value="">Tất cả trạng thái</option>
-          <option value="CHO_DUYET">Chờ duyệt</option>
-          <option value="DA_DUYET">Đã duyệt</option>
-          <option value="DA_THANH_TOAN">Đã thanh toán</option>
-        </select>
+      <div className="flex items-center gap-3 bg-white p-4 rounded-lg shadow">
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-gray-700">📅 Tháng:</label>
+          <select className="border border-gray-300 rounded-lg px-3 py-2" value={thang} onChange={(e)=>setThang(Number(e.target.value))}>
+            {Array.from({ length: 12 }).map((_, i) => (
+              <option key={i + 1} value={i + 1}>Tháng {i + 1}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-gray-700">📆 Năm:</label>
+          <input 
+            type="number" 
+            className="border border-gray-300 rounded-lg px-3 py-2 w-24" 
+            value={nam} 
+            onChange={(e)=>setNam(Number(e.target.value))}
+          />
+        </div>
+        <div className="border-l pl-3 flex items-center gap-2">
+          <label className="text-sm font-medium text-gray-700">Trạng thái:</label>
+          <select className="border border-gray-300 rounded-lg px-3 py-2" value={trangThai} onChange={(e)=>{ setTrangThai(e.target.value); setPage(0) }}>
+            <option value="">Tất cả</option>
+            <option value="CHO_DUYET">Chờ duyệt</option>
+            <option value="DA_DUYET">Đã duyệt</option>
+            <option value="DA_THANH_TOAN">Đã thanh toán</option>
+          </select>
+        </div>
       </div>
 
       {isLoading ? (
@@ -155,41 +205,32 @@ export default function BangLuongList() {
         <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">Lỗi tải dữ liệu</div>
       ) : (
         <div className="space-y-3">
-          {chucVus.map((cv: any) => {
-            const bangLuongs = bangLuongByChucVu[cv.chucvu_id] || []
+          {phongBans.map((pb: any) => {
+            const bangLuongs = bangLuongByPhongBan[pb.phongban_id] || []
             if (bangLuongs.length === 0) return null
             
-            const isExpanded = expandedChucVu === cv.chucvu_id
-            const cvTotal = bangLuongs.reduce((s, bl: any) => s + (Number(bl.thuc_lanh) || 0), 0)
+            const isExpanded = expandedPhongBan === pb.phongban_id
             
             return (
-              <div key={cv.chucvu_id} className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+              <div key={pb.phongban_id} className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
                   <button
-                    onClick={() => setExpandedChucVu(isExpanded ? null : cv.chucvu_id)}
+                    onClick={() => setExpandedPhongBan(isExpanded ? null : pb.phongban_id)}
                     className="flex-1 flex items-center gap-4 text-left"
                   >
                     <div className="flex-1">
-                      <h3 className="text-lg font-bold text-gray-900">{cv.ten_chucvu}</h3>
-                      <p className="text-sm text-gray-500">Chức vụ: {cv.mo_ta || cv.ten_chucvu}</p>
+                      <h3 className="text-lg font-bold text-gray-900">🏢 {pb.ten_phongban}</h3>
+                      <p className="text-sm text-gray-500">{bangLuongs.length} nhân viên • Tháng {thang}/{nam}</p>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <div className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-semibold">
-                        {bangLuongs.length} bảng lương
-                      </div>
-                      <div className="text-sm font-semibold text-green-600">
-                        {cvTotal.toLocaleString('vi-VN')}đ
-                      </div>
-                      <svg
-                        className={`w-5 h-5 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
+                    <svg
+                      className={`w-5 h-5 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
                   </button>
                 </div>
                 

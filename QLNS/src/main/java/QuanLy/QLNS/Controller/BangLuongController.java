@@ -21,7 +21,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import QuanLy.QLNS.Entity.BangLuong;
+import QuanLy.QLNS.Entity.NhanVien;
 import QuanLy.QLNS.Service.BangLuongService;
+import QuanLy.QLNS.Service.NhanVienService;
+import QuanLy.QLNS.dto.CreateBangLuongRequest;
+import QuanLy.QLNS.dto.UpdateBangLuongRequest;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/api/bangluong", produces = "application/json;charset=UTF-8")
@@ -29,9 +34,11 @@ import QuanLy.QLNS.Service.BangLuongService;
 public class BangLuongController {
 
 	private final BangLuongService service;
+	private final NhanVienService nhanVienService;
 
-	public BangLuongController(BangLuongService service) {
+	public BangLuongController(BangLuongService service, NhanVienService nhanVienService) {
 		this.service = service;
+		this.nhanVienService = nhanVienService;
 	}
 
     @GetMapping
@@ -51,14 +58,60 @@ public class BangLuongController {
 	}
 
 	@PostMapping
-	public ResponseEntity<BangLuong> create(@RequestBody BangLuong body) {
-		BangLuong created = service.create(body);
-		return ResponseEntity.created(URI.create("/api/bang-luong/" + created.getBangluong_id())).body(created);
+	public ResponseEntity<BangLuong> create(@Valid @RequestBody CreateBangLuongRequest request) {
+		// Tìm nhân viên
+		NhanVien nhanVien = nhanVienService.getById(request.getNhanVien())
+				.orElseThrow(() -> new IllegalArgumentException("Nhân viên không tồn tại: " + request.getNhanVien()));
+		
+		// Tạo entity BangLuong
+		BangLuong bangLuong = new BangLuong();
+		bangLuong.setNhanVien(nhanVien);
+		bangLuong.setThang(request.getThang());
+		bangLuong.setNam(request.getNam());
+		bangLuong.setLuong_co_ban(request.getLuong_co_ban());
+		bangLuong.setPhu_cap(request.getPhu_cap());
+		bangLuong.setKhau_tru(request.getKhau_tru());
+		bangLuong.setBhxh(request.getBhxh());
+		bangLuong.setBhyt(request.getBhyt());
+		bangLuong.setBhtn(request.getBhtn());
+		bangLuong.setThueThuNhap(request.getThueThuNhap());
+		bangLuong.setTong_cong(request.getTong_cong());
+		bangLuong.setThuc_lanh(request.getThuc_lanh());
+		bangLuong.setNgayThanhToan(request.getNgayThanhToan());
+		bangLuong.setTrangThai(request.getTrangThai() != null ? request.getTrangThai() : "CHO_DUYET");
+		
+		BangLuong created = service.create(bangLuong);
+		return ResponseEntity.created(URI.create("/api/bangluong/" + created.getBangluong_id())).body(created);
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<BangLuong> update(@PathVariable Long id, @RequestBody BangLuong body) {
-		return ResponseEntity.ok(service.update(id, body));
+	public ResponseEntity<BangLuong> update(@PathVariable Long id, @Valid @RequestBody UpdateBangLuongRequest request) {
+		BangLuong existing = service.getById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Bảng lương không tồn tại: " + id));
+		
+		// Update fields
+		if (request.getThang() != null) existing.setThang(request.getThang());
+		if (request.getNam() != null) existing.setNam(request.getNam());
+		if (request.getLuong_co_ban() != null) existing.setLuong_co_ban(request.getLuong_co_ban());
+		if (request.getPhu_cap() != null) existing.setPhu_cap(request.getPhu_cap());
+		if (request.getKhau_tru() != null) existing.setKhau_tru(request.getKhau_tru());
+		if (request.getBhxh() != null) existing.setBhxh(request.getBhxh());
+		if (request.getBhyt() != null) existing.setBhyt(request.getBhyt());
+		if (request.getBhtn() != null) existing.setBhtn(request.getBhtn());
+		if (request.getThueThuNhap() != null) existing.setThueThuNhap(request.getThueThuNhap());
+		if (request.getTong_cong() != null) existing.setTong_cong(request.getTong_cong());
+		if (request.getThuc_lanh() != null) existing.setThuc_lanh(request.getThuc_lanh());
+		if (request.getNgayThanhToan() != null) existing.setNgayThanhToan(request.getNgayThanhToan());
+		if (request.getTrangThai() != null) existing.setTrangThai(request.getTrangThai());
+		
+		// Update nhân viên nếu có
+		if (request.getNhanVien() != null) {
+			NhanVien nhanVien = nhanVienService.getById(request.getNhanVien())
+					.orElseThrow(() -> new IllegalArgumentException("Nhân viên không tồn tại: " + request.getNhanVien()));
+			existing.setNhanVien(nhanVien);
+		}
+		
+		return ResponseEntity.ok(service.update(id, existing));
 	}
 
 	@DeleteMapping("/{id}")

@@ -3,7 +3,6 @@ import { useAuthStore } from '../../stores/auth'
 import { useChamCongGPS, useChamCongStatus } from '../../api/chamcong-gps'
 import { useCreateNghiPhep, useNghiPhepList } from '../../api/nghiphep'
 import { useChamCongList } from '../../api/chamcong'
-import { useBangLuongList } from '../../api/bangluong'
 import { useHopDongList } from '../../api/hopdong'
 
 export default function EmployeeDashboard() {
@@ -21,9 +20,8 @@ export default function EmployeeDashboard() {
   // Fetch real data
   const currentMonth = new Date().getMonth() + 1
   const currentYear = new Date().getFullYear()
-  const { data: chamCongData } = useChamCongList(0, 20, user?.nhanVienId, currentMonth, currentYear)
+  const { data: chamCongData, refetch: refetchChamCong } = useChamCongList(0, 20, user?.nhanVienId, currentMonth, currentYear)
   const { data: nghiPhepData } = useNghiPhepList(0, 10)
-  const { data: bangLuongData } = useBangLuongList(0, 100)
   const { data: hopDongData } = useHopDongList(0, 100)
 
   useEffect(() => {
@@ -69,7 +67,14 @@ export default function EmployeeDashboard() {
       })
 
       setSuccess(result.message)
-      refetch()
+      
+      // Refetch both status and attendance list
+      await Promise.all([
+        refetch(),
+        refetchChamCong()
+      ])
+      
+      console.log('Đã refetch dữ liệu chấm công')
     } catch (err: any) {
       if (err.code === 1) {
         setError('Vui lòng cho phép truy cập vị trí trong cài đặt trình duyệt')
@@ -114,15 +119,19 @@ export default function EmployeeDashboard() {
     }
   }
 
-  // Calculate statistics from real data
+  // Calculate statistics from real data (tháng hiện tại)
   const stats = {
     soNgayLam: chamCongData?.content?.length || 0,
     tongGioLam: chamCongData?.content?.reduce((sum: number, cc: any) => sum + (cc.tongGioLam || 0), 0) || 0,
     diMuon: chamCongData?.content?.filter((cc: any) => cc.trangThai === 'DI_MUON').length || 0,
-    nghiPhep: nghiPhepData?.content?.filter((np: any) => 
-      (np.nhanVien?.nhanvien_id === user?.nhanVienId || np.nhanVien === user?.nhanVienId) && 
-      np.trangThai === 'DA_DUYET'
-    ).reduce((sum: number, np: any) => sum + (np.soNgayNghi || np.so_ngay || 0), 0) || 0
+    nghiPhep: nghiPhepData?.content?.filter((np: any) => {
+      // Chỉ lấy nghỉ phép của nhân viên này, đã duyệt, trong tháng hiện tại
+      const isMyLeave = np.nhanVien?.nhanvien_id === user?.nhanVienId || np.nhanVien === user?.nhanVienId
+      const isApproved = np.trangThai === 'DA_DUYET'
+      const startDate = new Date(np.ngayBatDau || np.tu_ngay)
+      const isThisMonth = startDate.getMonth() === currentMonth - 1 && startDate.getFullYear() === currentYear
+      return isMyLeave && isApproved && isThisMonth
+    }).reduce((sum: number, np: any) => sum + (np.soNgayNghi || np.so_ngay || 0), 0) || 0
   }
 
   // Calculate estimated salary based on attendance

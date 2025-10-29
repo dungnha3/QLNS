@@ -62,4 +62,8 @@ public interface NhanVienRepository extends JpaRepository<NhanVien, Long> {
     // Tìm theo phòng ban ID
     @Query("SELECT n FROM NhanVien n WHERE n.phongBan.phongban_id = :phongBanId")
     List<NhanVien> findByPhongBan_PhongbanId(@Param("phongBanId") Long phongBanId);
+    
+    // Tìm nhân viên chưa có hợp đồng
+    @Query("SELECT n FROM NhanVien n WHERE n.nhanvien_id NOT IN (SELECT DISTINCT h.nhanVien.nhanvien_id FROM HopDong h)")
+    List<NhanVien> findNhanVienWithoutContract();
 }

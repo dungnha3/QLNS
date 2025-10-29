@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import type { TaiKhoan } from '../../api/taikhoan'
 import { useCreateTaiKhoan, useDeleteTaiKhoan, useTaiKhoanList, useUpdateTaiKhoan } from '../../api/taikhoan'
-import { useCreateNhanVien, useUpdateNhanVien, useNhanVienDetail } from '../../api/nhanvien'
+import { useUpdateNhanVien, useNhanVienDetail } from '../../api/nhanvien'
 import { usePhongBanList } from '../../api/phongban'
 import { useChucVuList } from '../../api/chucvu'
 
@@ -202,175 +202,6 @@ function TKForm({ initial, onSubmit, onCancel, submitting }: { initial?: Partial
   )
 }
 
-function CreateEmployeeModal({ taiKhoan, onClose }: { taiKhoan: any; onClose: () => void }) {
-  const createNhanVienMut = useCreateNhanVien()
-  const [form, setForm] = useState<any>({
-    ho_ten: '',
-    email: '',
-    gioi_tinh: 'Nam',
-    dia_chi: '',
-    ngay_sinh: '',
-    ngay_vao_lam: new Date().toISOString().split('T')[0],
-    so_dien_thoai: '',
-    cccd: '',
-  })
-  
-  const onChange = (k: string, v: any) => setForm((s: any) => ({ ...s, [k]: v }))
-  
-  const handleSubmit = async () => {
-    if (!form.ho_ten || form.ho_ten.trim().length < 2) {
-      alert('Họ tên không được để trống')
-      return
-    }
-    if (!form.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      alert('Email không hợp lệ')
-      return
-    }
-    if (!form.dia_chi || form.dia_chi.trim().length < 2) {
-      alert('Địa chỉ không được để trống')
-      return
-    }
-    if (form.cccd && !/^[0-9]{12}$/.test(form.cccd)) {
-      alert('CCCD phải là 12 số')
-      return
-    }
-    if (form.so_dien_thoai && !/^0[0-9]{9}$/.test(form.so_dien_thoai)) {
-      alert('Số điện thoại phải là 10 số, bắt đầu bằng 0')
-      return
-    }
-    try {
-      const employeeData = {
-        ho_ten: form.ho_ten,
-        email: form.email,
-        gioi_tinh: form.gioi_tinh || 'Nam',
-        dia_chi: form.dia_chi || '',
-        ngay_sinh: form.ngay_sinh || null,
-        ngay_vao_lam: form.ngay_vao_lam || new Date().toISOString().split('T')[0],
-        so_dien_thoai: form.so_dien_thoai || null,
-        cccd: form.cccd || null,
-        trangThai: 'DANG_LAM_VIEC',
-        taiKhoan: taiKhoan.taikhoan_id
-      }
-      await createNhanVienMut.mutateAsync(employeeData)
-      alert('Tạo hồ sơ nhân viên thành công!')
-      onClose()
-    } catch (err: any) {
-      alert(err?.response?.data?.message || 'Tạo hồ sơ thất bại')
-    }
-  }
-  
-  return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
-        <h3 className="text-xl font-bold text-gray-900 mb-4">Tạo hồ sơ nhân viên</h3>
-        <p className="text-sm text-gray-600 mb-4">
-          Tài khoản: <span className="font-semibold">{taiKhoan.ten_dangnhap}</span>
-        </p>
-        
-        <div className="grid grid-cols-2 gap-4">
-          <div className="col-span-2">
-            <label className="block text-sm font-medium mb-1">Họ tên *</label>
-            <input 
-              className="w-full border rounded px-3 py-2" 
-              value={form.ho_ten} 
-              onChange={(e)=>onChange('ho_ten', e.target.value)}
-              placeholder="Nguyễn Văn A"
-            />
-          </div>
-          <div className="col-span-2">
-            <label className="block text-sm font-medium mb-1">Email *</label>
-            <input 
-              type="email"
-              className="w-full border rounded px-3 py-2" 
-              value={form.email} 
-              onChange={(e)=>onChange('email', e.target.value)}
-              placeholder="email@example.com"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Giới tính</label>
-            <select className="w-full border rounded px-3 py-2" value={form.gioi_tinh} onChange={(e)=>onChange('gioi_tinh', e.target.value)}>
-              <option value="Nam">Nam</option>
-              <option value="Nữ">Nữ</option>
-              <option value="Khác">Khác</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">SĐT</label>
-            <input 
-              className="w-full border rounded px-3 py-2" 
-              value={form.so_dien_thoai} 
-              onChange={(e)=>onChange('so_dien_thoai', e.target.value)}
-              placeholder="0901234567"
-              maxLength={10}
-              pattern="0[0-9]{9}"
-            />
-            <p className="text-xs text-gray-500 mt-1">10 số, bắt đầu bằng 0</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">CCCD</label>
-            <input 
-              className="w-full border rounded px-3 py-2" 
-              value={form.cccd} 
-              onChange={(e)=>onChange('cccd', e.target.value)}
-              placeholder="001234567890"
-              maxLength={12}
-              pattern="[0-9]{12}"
-            />
-            <p className="text-xs text-gray-500 mt-1">12 số</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Ngày sinh</label>
-            <input 
-              type="date"
-              className="w-full border rounded px-3 py-2" 
-              value={form.ngay_sinh} 
-              onChange={(e)=>onChange('ngay_sinh', e.target.value)}
-              max={new Date().toISOString().split('T')[0]}
-            />
-            <p className="text-xs text-gray-500 mt-1">💡 Click vào năm để nhập trực tiếp</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Ngày vào làm</label>
-            <input 
-              type="date"
-              className="w-full border rounded px-3 py-2" 
-              value={form.ngay_vao_lam} 
-              onChange={(e)=>onChange('ngay_vao_lam', e.target.value)}
-            />
-          </div>
-          <div className="col-span-2">
-            <label className="block text-sm font-medium mb-1">Địa chỉ *</label>
-            <input 
-              className="w-full border rounded px-3 py-2" 
-              value={form.dia_chi} 
-              onChange={(e)=>onChange('dia_chi', e.target.value)}
-              placeholder="Hà Nội"
-              required
-            />
-          </div>
-        </div>
-        
-        <div className="flex justify-end gap-3 mt-6">
-          <button 
-            onClick={onClose}
-            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            Hủy
-          </button>
-          <button 
-            onClick={handleSubmit}
-            disabled={createNhanVienMut.isPending}
-            className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 transition-colors"
-          >
-            {createNhanVienMut.isPending ? 'Đang lưu...' : 'Lưu'}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 function AssignDepartmentModal({ nhanVienId, onClose }: { nhanVienId: number; onClose: () => void }) {
   const queryClient = useQueryClient()
   const { data: nhanVien } = useNhanVienDetail(nhanVienId)
@@ -411,7 +242,7 @@ function AssignDepartmentModal({ nhanVienId, onClose }: { nhanVienId: number; on
       queryClient.invalidateQueries({ queryKey: ['taikhoan'] })
       queryClient.invalidateQueries({ queryKey: ['nhanvien'] })
       
-      alert('Gán phòng ban thành công!')
+      alert('✅ Gán phòng ban và chức vụ thành công!\n\n💡 Gợi ý: Bạn có thể tạo hợp đồng cho nhân viên này ở trang "Hợp đồng".')
       onClose()
     } catch (err: any) {
       alert(err?.response?.data?.message || 'Gán phòng ban thất bại')
@@ -485,10 +316,8 @@ export default function TaiKhoanList() {
   const [size] = useState(10)
   const [showForm, setShowForm] = useState<null | Partial<TaiKhoan>>(null)
   const [assignNhanVienId, setAssignNhanVienId] = useState<number | null>(null)
-  const [createEmployeeForAccount, setCreateEmployeeForAccount] = useState<any>(null)
   const { data, isLoading, error } = useTaiKhoanList(page, size)
   const createMut = useCreateTaiKhoan()
-  const createNhanVienMut = useCreateNhanVien()
   const updateMut = useUpdateTaiKhoan()
   const deleteMut = useDeleteTaiKhoan()
 
@@ -625,20 +454,13 @@ export default function TaiKhoanList() {
       </div>
 
       {showForm && (
-        <TKForm initial={showForm} submitting={createMut.isPending||updateMut.isPending||createNhanVienMut.isPending} onSubmit={onSubmit} onCancel={()=>setShowForm(null)} />
+        <TKForm initial={showForm} submitting={createMut.isPending||updateMut.isPending} onSubmit={onSubmit} onCancel={()=>setShowForm(null)} />
       )}
       
       {assignNhanVienId && (
         <AssignDepartmentModal 
           nhanVienId={assignNhanVienId} 
           onClose={() => setAssignNhanVienId(null)} 
-        />
-      )}
-      
-      {createEmployeeForAccount && (
-        <CreateEmployeeModal 
-          taiKhoan={createEmployeeForAccount} 
-          onClose={() => setCreateEmployeeForAccount(null)} 
         />
       )}
     </div>

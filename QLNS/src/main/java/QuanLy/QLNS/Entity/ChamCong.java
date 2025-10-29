@@ -19,7 +19,7 @@ public class ChamCong {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long chamcong_id;
     
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalTime gio_ra;
     
     @Column(nullable = false)

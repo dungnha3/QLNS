@@ -95,6 +95,11 @@ public class NhanVienServiceImpl implements NhanVienService {
 	public NhanVien save(NhanVien nhanVien) {
 		return nhanVienRepository.save(nhanVien);
 	}
+	
+	@Override
+	public List<NhanVien> getNhanVienWithoutContract() {
+		return nhanVienRepository.findNhanVienWithoutContract();
+	}
 }
 
 

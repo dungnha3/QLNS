@@ -13,10 +13,14 @@ export function useChamCongList(page: number, size: number, nhanVienId?: number,
       if (nhanVienId) params.nhanVienId = nhanVienId
       if (month) params.month = month
       if (year) params.year = year
+      console.log('Fetching chamcong with params:', params)
       const res = await api.get<Page<ChamCong>>('/api/chamcong', { params })
+      console.log('Chamcong response:', res.data)
       return res.data
     },
     placeholderData: keepPreviousData,
+    refetchOnMount: true,
+    staleTime: 0,
   })
 }
 

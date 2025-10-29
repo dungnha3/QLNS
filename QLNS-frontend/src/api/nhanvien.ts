@@ -70,3 +70,13 @@ export function useDeleteNhanVien() {
     },
   })
 }
+
+export function useNhanVienWithoutContract() {
+  return useQuery({
+    queryKey: ['nhanvien', 'without-contract'],
+    queryFn: async () => {
+      const res = await api.get<NhanVien[]>('/api/nhanvien/without-contract')
+      return res.data
+    },
+  })
+}
