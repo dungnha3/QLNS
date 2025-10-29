@@ -136,15 +136,15 @@ export default function EmployeeDashboard() {
   return (
     <div className="space-y-6">
       {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl shadow-xl p-8 text-white">
+      <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Xin chào, {user?.tenDangnhap}! 👋</h1>
-            <p className="text-blue-100">{formatDate(currentTime)}</p>
+            <h1 className="text-3xl font-bold mb-2 text-gray-900">Xin chào, {user?.tenDangnhap}! 👋</h1>
+            <p className="text-gray-600">{formatDate(currentTime)}</p>
           </div>
           <div className="text-right">
-            <div className="text-5xl font-bold">{formatTime(currentTime)}</div>
-            <div className="text-blue-100 mt-1">Giờ hiện tại</div>
+            <div className="text-5xl font-bold text-gray-900">{formatTime(currentTime)}</div>
+            <div className="text-gray-600 mt-1">Giờ hiện tại</div>
           </div>
         </div>
       </div>

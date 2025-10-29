@@ -8,14 +8,14 @@ function NPForm({ initial, onSubmit, onCancel, submitting }: { initial?: Partial
   const { user } = useAuthStore()
   const isEmployee = user?.role === 'EMPLOYEE'
   
-  const [form, setForm] = useState<Partial<NghiPhep>>({
-    nhanVien: isEmployee ? user?.nhanVienId : (typeof initial?.nhanVien === 'number' ? initial?.nhanVien : (initial?.nhanVien as any)?.nhanvien_id || undefined),
-    ngayBatDau: initial?.ngayBatDau || initial?.tu_ngay || '',
-    ngayKetThuc: initial?.ngayKetThuc || initial?.den_ngay || '',
-    lyDo: initial?.lyDo || initial?.ly_do || '',
-    loaiNghi: initial?.loaiNghi || initial?.loai || 'PHEP_NAM',
+  const [form, setForm] = useState<any>({
+    nhanVien: isEmployee ? user?.nhanVienId : (typeof initial?.nhanVien === 'object' ? initial?.nhanVien?.nhanvien_id : initial?.nhanVien),
+    ngayBatDau: initial?.ngayBatDau || '',
+    ngayKetThuc: initial?.ngayKetThuc || '',
+    lyDo: initial?.lyDo || '',
+    loaiNghi: initial?.loaiNghi || 'PHEP_NAM',
   })
-  const onChange = (k: string, v: any) => setForm((s) => ({ ...s, [k]: v }))
+  const onChange = (k: string, v: any) => setForm((s: any) => ({ ...s, [k]: v }))
   
   // Calculate số ngày nghỉ
   const calculateDays = () => {

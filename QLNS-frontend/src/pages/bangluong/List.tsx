@@ -131,8 +131,7 @@ export default function BangLuongList() {
           <p className="text-sm text-gray-500 mt-1">Quản lý lương theo chức vụ</p>
         </div>
         {!isEmployee && (
-          <button onClick={()=>setShowAuto(true)} className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2.5 rounded-lg font-medium shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all">
-            <span>⚡</span>
+          <button onClick={()=>setShowAuto(true)} className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-gray-700 transition-colors">
             <span>Tính lương tự động</span>
           </button>
         )}
@@ -171,12 +170,9 @@ export default function BangLuongList() {
                     onClick={() => setExpandedChucVu(isExpanded ? null : cv.chucvu_id)}
                     className="flex-1 flex items-center gap-4 text-left"
                   >
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
-                      <span className="text-white text-xl">💰</span>
-                    </div>
                     <div className="flex-1">
                       <h3 className="text-lg font-bold text-gray-900">{cv.ten_chucvu}</h3>
-                      <p className="text-sm text-gray-500">{cv.mo_ta || cv.ten_chucvu}</p>
+                      <p className="text-sm text-gray-500">Chức vụ: {cv.mo_ta || cv.ten_chucvu}</p>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-semibold">

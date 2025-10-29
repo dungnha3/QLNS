@@ -1,23 +1,37 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import type { HopDong } from '../../api/hopdong'
 import { useCreateHopDong, useDeleteHopDong, useHopDongList, useUpdateHopDong } from '../../api/hopdong'
-import { useChucVuList } from '../../api/chucvu'
+import { usePhongBanList } from '../../api/phongban'
 import { useAuthStore } from '../../stores/auth'
 import { NhanVienSelect } from '../../components/NhanVienSelect'
+import { useNhanVienDetail } from '../../api/nhanvien'
 
 function HDForm({ initial, onSubmit, onCancel, submitting }: { initial?: Partial<HopDong>; onSubmit: (v: Partial<HopDong>) => void; onCancel: () => void; submitting?: boolean }) {
   const [form, setForm] = useState<Partial<HopDong>>({
     loai_hopdong: (initial?.loai_hopdong as any) || 'CHINH_THUC',
     ngay_batdau: initial?.ngay_batdau || '',
     ngay_ketthuc: initial?.ngay_ketthuc || '',
-    ngay_ky: initial?.ngay_ky || '',
+    ngay_ky: initial?.ngay_ky || new Date().toISOString().split('T')[0],
     luongCoBan: initial?.luongCoBan || undefined,
     trangThai: (initial?.trangThai as any) || 'CON_HIEU_LUC',
     ghiChu: initial?.ghiChu || '',
     nhanVien: typeof initial?.nhanVien === 'number' ? initial?.nhanVien : (initial?.nhanVien as any)?.nhanvien_id || undefined,
   })
   const onChange = (k: keyof HopDong, v: any) => setForm((s) => ({ ...s, [k]: v }))
+  
+  // Load thông tin nhân viên khi chọn
+  const { data: selectedEmployee } = useNhanVienDetail(form.nhanVien as number)
+  
+  // Auto-fill lương từ chức vụ nếu chưa có
+  useEffect(() => {
+    if (selectedEmployee && !initial?.hopdong_id && !form.luongCoBan) {
+      const luongChucVu = selectedEmployee.chucVu?.luong_co_ban
+      if (luongChucVu) {
+        setForm(s => ({ ...s, luongCoBan: Number(luongChucVu) }))
+      }
+    }
+  }, [selectedEmployee, initial, form.luongCoBan])
   return (
     <div className="modal-backdrop">
       <div className="modal-panel max-w-2xl">
@@ -59,10 +73,52 @@ function HDForm({ initial, onSubmit, onCancel, submitting }: { initial?: Partial
             <NhanVienSelect
               value={form.nhanVien as number}
               onChange={(id) => onChange('nhanVien', id)}
-              label="Nhân viên"
+              label="Nhân viên *"
               required
+              disabled={!!(initial as any)?.hopdong_id}
             />
           </div>
+          
+          {/* Hiển thị thông tin nhân viên */}
+          {selectedEmployee && (
+            <div className="col-span-2 bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <h4 className="font-semibold text-sm mb-2 text-blue-900">👤 Thông tin nhân viên</h4>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span className="text-gray-600">Họ tên:</span>
+                  <span className="ml-2 font-medium">{selectedEmployee.ho_ten}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Email:</span>
+                  <span className="ml-2 font-medium">{selectedEmployee.email}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">SĐT:</span>
+                  <span className="ml-2 font-medium">{selectedEmployee.so_dien_thoai || 'Chưa có'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">CCCD:</span>
+                  <span className="ml-2 font-medium">{selectedEmployee.cccd || 'Chưa có'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Phòng ban:</span>
+                  <span className="ml-2 font-medium">{selectedEmployee.phongBan?.ten_phongban || 'Chưa có'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Chức vụ:</span>
+                  <span className="ml-2 font-medium">{selectedEmployee.chucVu?.ten_chucvu || 'Chưa có'}</span>
+                </div>
+                {selectedEmployee.chucVu?.luong_co_ban && (
+                  <div className="col-span-2">
+                    <span className="text-gray-600">Lương cơ bản chức vụ:</span>
+                    <span className="ml-2 font-semibold text-green-700">
+                      {Number(selectedEmployee.chucVu.luong_co_ban).toLocaleString('vi-VN')}đ
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           <div className="col-span-2">
             <label className="block text-sm mb-1">Ghi chú</label>
             <textarea className="input" value={form.ghiChu||''} onChange={(e)=>onChange('ghiChu', e.target.value)} />
@@ -89,16 +145,16 @@ export default function HopDongList() {
   const [page, setPage] = useState(0)
   const [size] = useState(100) // Lấy tất cả để group
   const [showForm, setShowForm] = useState<null | Partial<HopDong>>(null)
-  const [expandedChucVu, setExpandedChucVu] = useState<number | null>(null)
+  const [expandedPhongBan, setExpandedPhongBan] = useState<number | null>(null)
   const { data, isLoading, error } = useHopDongList(page, size)
-  const { data: chucVuData } = useChucVuList(0, 100)
+  const { data: phongBanData } = usePhongBanList(0, 100)
   const createMut = useCreateHopDong()
   const updateMut = useUpdateHopDong()
   const deleteMut = useDeleteHopDong()
   const { user } = useAuthStore()
 
   const pageData = data || { content: [], totalElements: 0, totalPages: 0, number: 0, size }
-  const chucVus = chucVuData?.content || []
+  const phongBans = phongBanData?.content || []
   const isEmployee = useMemo(()=> user?.role === 'EMPLOYEE', [user?.role])
   const filteredContent = useMemo(() => {
     if (!isEmployee) return pageData.content
@@ -106,14 +162,14 @@ export default function HopDongList() {
     return (pageData.content || []).filter((hd: any) => (hd.nhanVien?.nhanvien_id ?? hd.nhanVien) === myId)
   }, [isEmployee, pageData, user])
   
-  // Group hợp đồng theo chức vụ
-  const hopDongByChucVu = useMemo(() => {
+  // Group hợp đồng theo phòng ban
+  const hopDongByPhongBan = useMemo(() => {
     const grouped: Record<number, any[]> = {}
     filteredContent.forEach((hd: any) => {
-      const chucvuId = hd.nhanVien?.chucVu?.chucvu_id
-      if (chucvuId) {
-        if (!grouped[chucvuId]) grouped[chucvuId] = []
-        grouped[chucvuId].push(hd)
+      const phongbanId = hd.nhanVien?.phongBan?.phongban_id
+      if (phongbanId) {
+        if (!grouped[phongbanId]) grouped[phongbanId] = []
+        grouped[phongbanId].push(hd)
       }
     })
     return grouped
@@ -125,8 +181,8 @@ export default function HopDongList() {
         ...form,
         nhanVien:
           typeof form.nhanVien === 'number'
-            ? { nhanvien_id: form.nhanVien }
-            : (form.nhanVien as any),
+            ? form.nhanVien
+            : (form.nhanVien as any)?.nhanvien_id,
       }
       if ((showForm as any)?.hopdong_id) {
         await updateMut.mutateAsync({ id: (showForm as any).hopdong_id, body: payload })
@@ -162,14 +218,13 @@ export default function HopDongList() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Hợp đồng lao động</h1>
-          <p className="text-sm text-gray-500 mt-1">Quản lý hợp đồng theo chức vụ nhân viên</p>
+          <p className="text-sm text-gray-500 mt-1">Quản lý hợp đồng theo phòng ban</p>
         </div>
         {!isEmployee && (
           <button 
             onClick={()=>setShowForm({})} 
-            className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2.5 rounded-lg font-medium shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all"
+            className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-gray-700 transition-colors"
           >
-            <span>➕</span>
             <span>Thêm mới</span>
           </button>
         )}
@@ -185,26 +240,23 @@ export default function HopDongList() {
       ) : (
         <>
           <div className="space-y-3">
-            {chucVus.map((cv: any) => {
-              const hopDongs = hopDongByChucVu[cv.chucvu_id] || []
+            {phongBans.map((pb: any) => {
+              const hopDongs = hopDongByPhongBan[pb.phongban_id] || []
               if (hopDongs.length === 0) return null
               
-              const isExpanded = expandedChucVu === cv.chucvu_id
+              const isExpanded = expandedPhongBan === pb.phongban_id
               
               return (
-                <div key={cv.chucvu_id} className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+                <div key={pb.phongban_id} className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
                   {/* Header */}
                   <div className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
                     <button
-                      onClick={() => setExpandedChucVu(isExpanded ? null : cv.chucvu_id)}
+                      onClick={() => setExpandedPhongBan(isExpanded ? null : pb.phongban_id)}
                       className="flex-1 flex items-center gap-4 text-left"
                     >
-                      <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center shadow-md">
-                        <span className="text-white text-xl">📋</span>
-                      </div>
                       <div className="flex-1">
-                        <h3 className="text-lg font-bold text-gray-900">{cv.ten_chucvu}</h3>
-                        <p className="text-sm text-gray-500">Chức vụ: {cv.mo_ta || cv.ten_chucvu}</p>
+                        <h3 className="text-lg font-bold text-gray-900">{pb.ten_phongban}</h3>
+                        <p className="text-sm text-gray-500">Địa điểm: {pb.dia_diem}</p>
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
@@ -246,6 +298,9 @@ export default function HopDongList() {
                                     >
                                       {hd.nhanVien?.ho_ten || 'Không rõ'}
                                     </Link>
+                                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                                      {hd.nhanVien?.chucVu?.ten_chucvu || 'Chưa có chức vụ'}
+                                    </span>
                                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                                       hd.loai_hopdong === 'CHINH_THUC' ? 'bg-blue-100 text-blue-700' :
                                       hd.loai_hopdong === 'THU_VIEC' ? 'bg-yellow-100 text-yellow-700' :

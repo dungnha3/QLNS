@@ -30,27 +30,27 @@ export default function PhongBanDetail() {
       </div>
 
       {/* Thông tin phòng ban */}
-      <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+      <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <div className="text-xs font-medium text-blue-600 mb-1">📍 Địa điểm</div>
+            <div className="text-xs font-medium text-gray-600 mb-1">Địa điểm</div>
             <div className="font-semibold text-gray-900">{pb.dia_diem}</div>
           </div>
           <div>
-            <div className="text-xs font-medium text-blue-600 mb-1">👥 Số lượng</div>
+            <div className="text-xs font-medium text-gray-600 mb-1">Số lượng</div>
             <div className="font-semibold text-gray-900">{nhanViens.length} nhân viên</div>
           </div>
           <div className="md:col-span-1">
-            <div className="text-xs font-medium text-blue-600 mb-1">📝 Mô tả</div>
+            <div className="text-xs font-medium text-gray-600 mb-1">Mô tả</div>
             <div className="text-sm text-gray-700">{pb.mo_ta || 'Không có mô tả'}</div>
           </div>
         </div>
       </div>
 
       {/* Danh sách nhân viên */}
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <div className="px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-          <h2 className="text-lg font-semibold">Danh sách nhân viên ({nhanViens.length})</h2>
+      <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+        <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">Danh sách nhân viên ({nhanViens.length})</h2>
         </div>
         
         {nhanViens.length === 0 ? (
@@ -76,12 +76,7 @@ export default function PhongBanDetail() {
                   <tr key={nv.nhanvien_id} className="border-b hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3 text-sm">#{nv.nhanvien_id}</td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
-                          {nv.ho_ten?.charAt(0)}
-                        </div>
-                        <span className="font-medium text-gray-900">{nv.ho_ten}</span>
-                      </div>
+                      <span className="font-medium text-gray-900">{nv.ho_ten}</span>
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600">{nv.email}</td>
                     <td className="px-4 py-3">
@@ -93,9 +88,8 @@ export default function PhongBanDetail() {
                     <td className="px-4 py-3 text-center">
                       <Link
                         to={`/nhanvien/${nv.nhanvien_id}`}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors"
                       >
-                        <span>👁️</span>
                         <span>Chi tiết</span>
                       </Link>
                     </td>

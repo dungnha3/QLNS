@@ -29,6 +29,10 @@ public interface NhanVienService {
 	List<NhanVien> getByPhongBan(PhongBan phongBan);
 
 	List<NhanVien> getByChucVu(ChucVu chucVu);
+	
+	boolean existsByEmail(String email);
+	
+	NhanVien save(NhanVien nhanVien);
 
 }
 

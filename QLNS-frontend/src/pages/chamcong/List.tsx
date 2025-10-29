@@ -112,8 +112,8 @@ export default function ChamCongList() {
         ...form,
         nhanVien:
           typeof form.nhanVien === 'number'
-            ? { nhanvien_id: form.nhanVien }
-            : (form.nhanVien as any),
+            ? form.nhanVien
+            : (form.nhanVien as any)?.nhanvien_id,
       }
       if ((showForm as any)?.chamcong_id) {
         await updateMut.mutateAsync({ id: (showForm as any).chamcong_id, body: payload })
@@ -141,9 +141,8 @@ export default function ChamCongList() {
           {isEmployee && (
             <button 
               onClick={() => alert('Tính năng chấm công GPS đang được phát triển!')}
-              className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-5 py-2.5 rounded-lg font-semibold shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40 transition-all"
+              className="flex items-center gap-2 bg-gray-900 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-gray-700 transition-colors"
             >
-              <span>📍</span>
               <span>Chấm công</span>
             </button>
           )}
@@ -186,12 +185,9 @@ export default function ChamCongList() {
                     onClick={() => setExpandedPhongBan(isExpanded ? null : pb.phongban_id)}
                     className="flex-1 flex items-center gap-4 text-left"
                   >
-                    <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center shadow-md">
-                      <span className="text-white text-xl">⏰</span>
-                    </div>
                     <div className="flex-1">
                       <h3 className="text-lg font-bold text-gray-900">{pb.ten_phongban}</h3>
-                      <p className="text-sm text-gray-500">{pb.dia_diem}</p>
+                      <p className="text-sm text-gray-500">Phòng ban: {pb.dia_diem}</p>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-semibold">

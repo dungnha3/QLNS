@@ -62,6 +62,7 @@ public class NhanVien {
     
     @OneToOne
     @JoinColumn(name = "taikhoan_id")
+    @JsonIgnore
     private TaiKhoan taiKhoan;
     
     @ManyToOne

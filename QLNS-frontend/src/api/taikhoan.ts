@@ -1,21 +1,9 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import api from './client'
+import type { TaiKhoan, Page, CreateAccountWithEmployeeRequest } from '../types'
 
-export type TaiKhoan = {
-  taikhoan_id: number
-  ten_dangnhap: string
-  quyen_han: 'ADMIN' | 'MANAGER' | 'EMPLOYEE' | string
-  mat_khau?: string
-  nhanVien?: { nhanvien_id: number; ho_ten?: string } | number
-}
-
-export type Page<T> = {
-  content: T[]
-  totalElements: number
-  totalPages: number
-  number: number
-  size: number
-}
+// Re-export for backward compatibility
+export type { TaiKhoan }
 
 export function useTaiKhoanList(page: number, size: number, sortBy = 'taikhoan_id', sortDir: 'asc' | 'desc' = 'asc') {
   return useQuery({
@@ -76,5 +64,19 @@ export function useDeleteTaiKhoan() {
       return id
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['taikhoan'] }),
+  })
+}
+
+export function useCreateTaiKhoanWithEmployee() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (body: CreateAccountWithEmployeeRequest) => {
+      const res = await api.post('/api/tai-khoan/with-employee', body)
+      return res.data
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['taikhoan'] })
+      qc.invalidateQueries({ queryKey: ['nhanvien'] })
+    },
   })
 }

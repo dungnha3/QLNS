@@ -70,9 +70,8 @@ export default function ChucVuList() {
         </div>
         <button 
           onClick={()=>setShowForm({})} 
-          className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2.5 rounded-lg font-medium shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all"
+          className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-gray-700 transition-colors"
         >
-          <span>➕</span>
           <span>Thêm mới</span>
         </button>
       </div>
@@ -99,9 +98,6 @@ export default function ChucVuList() {
                       onClick={() => setExpandedCV(isExpanded ? null : cv.chucvu_id)}
                       className="flex-1 flex items-center gap-4 text-left"
                     >
-                      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
-                        <span className="text-white text-xl">🎯</span>
-                      </div>
                       <div className="flex-1">
                         <h3 className="text-lg font-bold text-gray-900">{cv.ten_chucvu}</h3>
                         <p className="text-sm text-gray-500">{cv.mo_ta || 'Không có mô tả'}</p>
@@ -151,16 +147,13 @@ export default function ChucVuList() {
                             <Link
                               key={nv.nhanvien_id}
                               to={`/nhanvien/${nv.nhanvien_id}`}
-                              className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all"
+                              className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-gray-400 hover:shadow-md transition-all"
                             >
-                              <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
-                                {nv.ho_ten?.charAt(0)}
-                              </div>
                               <div className="flex-1 min-w-0">
                                 <div className="font-medium text-gray-900 truncate">{nv.ho_ten}</div>
                                 <div className="text-xs text-gray-500 truncate">{nv.email}</div>
                               </div>
-                              <span className="text-blue-500">→</span>
+                              <span className="text-gray-500">→</span>
                             </Link>
                           ))}
                         </div>

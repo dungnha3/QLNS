@@ -68,9 +68,8 @@ export default function PhongBanList() {
         </div>
         <button 
           onClick={()=>setShowForm({})} 
-          className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2.5 rounded-lg font-medium shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all"
+          className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-gray-700 transition-colors"
         >
-          <span>➕</span>
           <span>Thêm mới</span>
         </button>
       </div>
@@ -93,9 +92,6 @@ export default function PhongBanList() {
               >
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                      <span className="text-white text-xl">🏢</span>
-                    </div>
                     <span className="text-xs font-semibold text-gray-400">#{pb.phongban_id}</span>
                   </div>
                   

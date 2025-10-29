@@ -1,31 +1,9 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import api from './client'
+import type { BangLuong, BangLuongRequest, Page } from '../types'
 
-export type BangLuong = {
-  bangluong_id: number
-  nhanVien: { nhanvien_id: number; ho_ten?: string } | number
-  thang: number
-  nam: number
-  luong_co_ban: number
-  phu_cap?: number
-  khau_tru?: number
-  bhxh?: number
-  bhyt?: number
-  bhtn?: number
-  thueThuNhap?: number
-  tong_cong?: number
-  thuc_lanh?: number
-  ngayThanhToan?: string
-  trangThai?: 'CHO_DUYET' | 'DA_DUYET' | 'DA_THANH_TOAN' | string
-}
-
-export type Page<T> = {
-  content: T[]
-  totalElements: number
-  totalPages: number
-  number: number
-  size: number
-}
+// Re-export for backward compatibility
+export type { BangLuong, Page }
 
 export function useBangLuongList(page: number, size: number, trangThai?: string) {
   return useQuery({
@@ -43,7 +21,7 @@ export function useBangLuongList(page: number, size: number, trangThai?: string)
 export function useCreateBangLuong() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (body: Partial<BangLuong>) => {
+    mutationFn: async (body: Partial<BangLuongRequest>) => {
       const res = await api.post<BangLuong>('/api/bangluong', body)
       return res.data
     },
@@ -54,7 +32,7 @@ export function useCreateBangLuong() {
 export function useUpdateBangLuong() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, body }: { id: number; body: Partial<BangLuong> }) => {
+    mutationFn: async ({ id, body }: { id: number; body: Partial<BangLuongRequest> }) => {
       const res = await api.put<BangLuong>(`/api/bangluong/${id}`, body)
       return res.data
     },

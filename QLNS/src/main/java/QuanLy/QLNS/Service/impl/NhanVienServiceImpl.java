@@ -84,6 +84,17 @@ public class NhanVienServiceImpl implements NhanVienService {
 	public List<NhanVien> getByChucVu(ChucVu chucVu) {
 		return nhanVienRepository.findByChucVu(chucVu);
 	}
+	
+	@Override
+	public boolean existsByEmail(String email) {
+		return nhanVienRepository.existsByEmail(email);
+	}
+	
+	@Override
+	@Transactional
+	public NhanVien save(NhanVien nhanVien) {
+		return nhanVienRepository.save(nhanVien);
+	}
 }
 
 

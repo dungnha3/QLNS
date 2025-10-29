@@ -1,19 +1,9 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import api from './client'
+import type { ChucVu, Page } from '../types'
 
-export type ChucVu = {
-  chucvu_id: number
-  ten_chucvu: string
-  mo_ta?: string
-}
-
-export type Page<T> = {
-  content: T[]
-  totalElements: number
-  totalPages: number
-  number: number
-  size: number
-}
+// Re-export for backward compatibility
+export type { ChucVu, Page }
 
 export function useChucVuList(page: number, size: number) {
   return useQuery({

@@ -36,6 +36,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 // Public endpoints
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/tai-khoan/with-employee").permitAll() // Cho phép tạo tài khoản công khai
                 // Admin only endpoints
                 .requestMatchers("/api/tai-khoan/**").hasRole("ADMIN")
                 // Manager and Admin endpoints

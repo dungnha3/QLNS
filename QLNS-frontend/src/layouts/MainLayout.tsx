@@ -116,9 +116,6 @@ export default function MainLayout() {
       `}>
         {/* Logo & Brand */}
         <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-100">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-            <span className="text-white text-xl font-bold">Q</span>
-          </div>
           <div>
             <h1 className="text-xl font-bold text-gray-900">QLNS</h1>
             <p className="text-xs text-gray-500">Quản lý nhân sự</p>
@@ -127,12 +124,7 @@ export default function MainLayout() {
 
         {/* User Profile */}
         <div className="px-4 py-4 border-b border-gray-100">
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center shadow-md">
-              <span className="text-white font-semibold text-lg">
-                {user?.tenDangnhap?.charAt(0).toUpperCase()}
-              </span>
-            </div>
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-200">
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-gray-900 truncate">
                 {user?.tenDangnhap}

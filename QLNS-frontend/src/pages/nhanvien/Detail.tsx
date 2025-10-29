@@ -1,11 +1,12 @@
 import { useParams, Link } from 'react-router-dom'
-import { useNhanVienDetail } from '../../api/nhanvien'
+import { useNhanVienDetail, useUpdateNhanVien } from '../../api/nhanvien'
 import { useHopDongList } from '../../api/hopdong'
 import { useChamCongList } from '../../api/chamcong'
 import { useBangLuongList } from '../../api/bangluong'
 import { useNghiPhepList } from '../../api/nghiphep'
 import { useState } from 'react'
 import { useAuthStore } from '../../stores/auth'
+import { NhanVienEditModal } from '../../components/NhanVienEditModal'
 
 const tabs = ['Thông tin','HĐ','Chấm công','Lương','Nghỉ phép'] as const
 
@@ -17,6 +18,8 @@ export default function NhanVienDetail() {
   const { user } = useAuthStore()
   const { data, isLoading, error } = useNhanVienDetail(nvId)
   const [tab, setTab] = useState<TabKey>('Thông tin')
+  const [showEditModal, setShowEditModal] = useState(false)
+  const updateMut = useUpdateNhanVien()
   
   // Fetch related data
   const { data: hopDongData } = useHopDongList(0, 100)
@@ -32,6 +35,16 @@ export default function NhanVienDetail() {
 
   const isEmployee = user?.role === 'EMPLOYEE'
   const showBackButton = !isEmployee
+  const canEdit = !isEmployee // Only ADMIN and MANAGER can edit
+  
+  const handleUpdate = async (formData: any) => {
+    try {
+      await updateMut.mutateAsync({ id: nvId, body: formData })
+      setShowEditModal(false)
+    } catch (err: any) {
+      alert(err?.response?.data?.message || 'Cập nhật thất bại')
+    }
+  }
 
   if (isLoading) return <div className="text-center py-12">Đang tải...</div>
   if (error || !data) return <div className="text-red-600">Không tải được dữ liệu</div>
@@ -65,10 +78,29 @@ export default function NhanVienDetail() {
           <h1 className="text-2xl font-bold text-gray-900">Nhân viên #{data.nhanvien_id} - {data.ho_ten}</h1>
           <p className="text-sm text-gray-500 mt-1">{isEmployee ? 'Hồ sơ của tôi' : 'Thông tin chi tiết nhân viên'}</p>
         </div>
-        {showBackButton && (
-          <Link to="/nhanvien" className="text-sm text-blue-600 hover:underline">← Quay lại danh sách</Link>
-        )}
+        <div className="flex items-center gap-3">
+          {canEdit && (
+            <button 
+              onClick={() => setShowEditModal(true)}
+              className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              Sửa thông tin
+            </button>
+          )}
+          {showBackButton && (
+            <Link to="/nhanvien" className="text-sm text-blue-600 hover:underline">← Quay lại danh sách</Link>
+          )}
+        </div>
       </div>
+      
+      {showEditModal && (
+        <NhanVienEditModal
+          initial={data}
+          onSubmit={handleUpdate}
+          onCancel={() => setShowEditModal(false)}
+          submitting={updateMut.isPending}
+        />
+      )}
       
       <div className="border-b">
         <div className="flex gap-2">
@@ -89,18 +121,30 @@ export default function NhanVienDetail() {
       </div>
 
       {tab === 'Thông tin' && (
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h2 className="text-lg font-bold mb-4">Thông tin cá nhân</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Họ tên" value={data.ho_ten} />
-            <Field label="Email" value={data.email} />
-            <Field label="Giới tính" value={data.gioi_tinh} />
-            <Field label="SĐT" value={data.so_dien_thoai || '-'} />
-            <Field label="CCCD" value={data.cccd || '-'} />
-            <Field label="Ngày sinh" value={data.ngay_sinh} />
-            <Field label="Ngày vào làm" value={data.ngay_vao_lam} />
-            <Field label="Trạng thái" value={data.trangThai || '-'} />
-            <div className="col-span-2"><Field label="Địa chỉ" value={data.dia_chi} /></div>
+        <div className="space-y-6">
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <h2 className="text-lg font-bold mb-4">Thông tin cá nhân</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Họ tên" value={data.ho_ten} />
+              <Field label="Email" value={data.email} />
+              <Field label="Giới tính" value={data.gioi_tinh} />
+              <Field label="SĐT" value={data.so_dien_thoai || '-'} />
+              <Field label="CCCD" value={data.cccd || '-'} />
+              <Field label="Ngày sinh" value={data.ngay_sinh} />
+              <Field label="Ngày vào làm" value={data.ngay_vao_lam} />
+              <Field label="Trạng thái" value={data.trangThai || '-'} />
+              <div className="col-span-2"><Field label="Địa chỉ" value={data.dia_chi} /></div>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <h2 className="text-lg font-bold mb-4">Thông tin công việc</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Phòng ban" value={(data as any).phongBan?.ten_phongban || 'Chưa có'} />
+              <Field label="Chức vụ" value={(data as any).chucVu?.ten_chucvu || 'Chưa có'} />
+              <Field label="Địa điểm làm việc" value={(data as any).phongBan?.dia_diem || '-'} />
+              <Field label="Lương cơ bản" value={(data as any).chucVu?.luong_co_ban ? Number((data as any).chucVu.luong_co_ban).toLocaleString('vi-VN') + 'đ' : '-'} />
+            </div>
           </div>
         </div>
       )}

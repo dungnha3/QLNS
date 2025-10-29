@@ -114,7 +114,7 @@ export function TinhLuongModal({ onClose, onSuccess }: { onClose: () => void; on
 
           {/* Preview */}
           {showPreview && preview && (
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 space-y-4 border border-blue-200">
+            <div className="bg-gray-50 rounded-xl p-6 space-y-4 border border-gray-200">
               <h4 className="font-bold text-lg text-gray-900 flex items-center gap-2">
                 <span>📊</span> Xem trước kết quả
               </h4>
@@ -122,9 +122,6 @@ export function TinhLuongModal({ onClose, onSuccess }: { onClose: () => void; on
               {/* Thông tin nhân viên */}
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                    {preview.nhanVien?.hoTen?.charAt(0)}
-                  </div>
                   <div>
                     <div className="font-semibold text-gray-900">{preview.nhanVien?.hoTen}</div>
                     <div className="text-sm text-gray-500">{preview.nhanVien?.chucVu} - {preview.nhanVien?.phongBan}</div>

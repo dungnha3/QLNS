@@ -65,7 +65,7 @@ public class DataSeeder implements CommandLineRunner {
         ChucVu[] chucVus = seedChucVu();
         NhanVien[] nhanViens = seedNhanVien(phongBans, chucVus);
         seedHopDong(nhanViens);
-        // seedChamCong(nhanViens); // Commented out - employees will use GPS check-in
+        seedChamCong(nhanViens);
         seedBangLuong(nhanViens);
         seedNghiPhep(nhanViens);
         
@@ -262,23 +262,100 @@ public class DataSeeder implements CommandLineRunner {
     private void seedChamCong(NhanVien[] nhanViens) {
         LocalDate today = LocalDate.now();
         int totalCount = 0;
-        for (NhanVien nv : nhanViens) {
-            // Create multiple attendance records per employee (last 20 days)
-            for (int i = 0; i < 20; i++) {
+        
+        // Varied check-in times and patterns
+        LocalTime[] checkInTimes = {
+            LocalTime.of(7, 45),  // Đến sớm
+            LocalTime.of(8, 0),   // Đúng giờ
+            LocalTime.of(8, 0),   // Đúng giờ
+            LocalTime.of(8, 10),  // Muộn 10 phút
+            LocalTime.of(8, 20),  // Muộn 20 phút
+            LocalTime.of(8, 5),   // Muộn 5 phút
+            LocalTime.of(7, 55),  // Sớm 5 phút
+            LocalTime.of(8, 30),  // Muộn 30 phút
+        };
+        
+        LocalTime[] checkOutTimes = {
+            LocalTime.of(17, 30),
+            LocalTime.of(17, 45),
+            LocalTime.of(18, 0),
+            LocalTime.of(17, 20),
+            LocalTime.of(18, 30),
+            LocalTime.of(17, 0),
+        };
+        
+        String[] loaiCa = {"FULL", "FULL", "FULL", "SANG", "CHIEU", "FULL", "TOI"};
+        
+        for (int nvIdx = 0; nvIdx < nhanViens.length; nvIdx++) {
+            NhanVien nv = nhanViens[nvIdx];
+            
+            // Create attendance records for the last 30 days
+            for (int i = 0; i < 30; i++) {
+                LocalDate ngayLam = today.minusDays(i);
+                
+                // Skip weekends (Saturday=6, Sunday=7)
+                if (ngayLam.getDayOfWeek().getValue() >= 6) {
+                    continue;
+                }
+                
+                // Randomly skip some days (nghỉ phép, ốm, etc.)
+                if ((nvIdx + i) % 11 == 0) {
+                    continue;
+                }
+                
                 ChamCong cc = new ChamCong();
                 cc.setNhanVien(nv);
-                cc.setNgay_lam(today.minusDays(i));
-                cc.setGio_vao(LocalTime.of(8, (totalCount + i) % 2 == 0 ? 0 : 15));
-                cc.setGio_ra(LocalTime.of(17, 30));
-                cc.setLoaiCa("FULL");
-                cc.setTongGioLam(8.5);
-                cc.setTrangThai((totalCount + i) % 3 == 0 ? "DI_MUON" : "DUNG_GIO");
-                cc.setGhiChu((totalCount + i) % 2 == 0 ? "Làm việc bình thường" : "Đi muộn 15 phút");
+                cc.setNgay_lam(ngayLam);
+                
+                // Varied attendance patterns
+                int patternIdx = (nvIdx * 7 + i) % checkInTimes.length;
+                LocalTime gioVao = checkInTimes[patternIdx];
+                LocalTime gioRa = checkOutTimes[i % checkOutTimes.length];
+                
+                cc.setGio_vao(gioVao);
+                cc.setGio_ra(gioRa);
+                
+                // Calculate working hours
+                double hours = (gioRa.toSecondOfDay() - gioVao.toSecondOfDay()) / 3600.0;
+                // Subtract lunch break (1 hour)
+                if (hours > 4) {
+                    hours -= 1.0;
+                }
+                cc.setTongGioLam(Math.round(hours * 10.0) / 10.0);
+                
+                // Set shift type
+                String ca = loaiCa[i % loaiCa.length];
+                cc.setLoaiCa(ca);
+                
+                // Determine status based on check-in time
+                String trangThai;
+                String ghiChu;
+                if (gioVao.isAfter(LocalTime.of(8, 15))) {
+                    trangThai = "DI_MUON";
+                    int minutesLate = gioVao.getHour() * 60 + gioVao.getMinute() - (8 * 60);
+                    ghiChu = "Đi muộn " + minutesLate + " phút";
+                } else if (gioVao.isBefore(LocalTime.of(7, 50))) {
+                    trangThai = "DUNG_GIO";
+                    ghiChu = "Đến sớm";
+                } else {
+                    trangThai = "DUNG_GIO";
+                    ghiChu = "Làm việc bình thường";
+                }
+                
+                // Some records with early leave
+                if ((nvIdx + i) % 13 == 0 && gioRa.isBefore(LocalTime.of(17, 30))) {
+                    trangThai = "VE_SOM";
+                    ghiChu = "Về sớm - có việc gia đình";
+                }
+                
+                cc.setTrangThai(trangThai);
+                cc.setGhiChu(ghiChu);
+                
                 chamCongRepo.save(cc);
                 totalCount++;
             }
         }
-        log.info("✓ Đã tạo {} bản ghi chấm công", totalCount);
+        log.info("✓ Đã tạo {} bản ghi chấm công (30 ngày gần nhất, trừ cuối tuần)", totalCount);
     }
     
     private void seedBangLuong(NhanVien[] nhanViens) {

@@ -1,25 +1,9 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import api from './client'
+import type { HopDong, HopDongRequest, Page } from '../types'
 
-export type HopDong = {
-  hopdong_id: number
-  loai_hopdong: 'THU_VIEC' | 'CHINH_THUC' | 'HOP_TAC_VIEN' | string
-  ngay_batdau: string
-  ngay_ketthuc?: string | null
-  ngay_ky: string
-  luongCoBan?: number
-  trangThai?: 'CON_HIEU_LUC' | 'HET_HAN' | 'HUY' | string
-  ghiChu?: string
-  nhanVien: { nhanvien_id: number; ho_ten?: string } | number
-}
-
-export type Page<T> = {
-  content: T[]
-  totalElements: number
-  totalPages: number
-  number: number
-  size: number
-}
+// Re-export for backward compatibility
+export type { HopDong, Page }
 
 export function useHopDongList(page: number, size: number) {
   return useQuery({
@@ -46,7 +30,7 @@ export function useHopDongDetail(id: number) {
 export function useCreateHopDong() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (body: Partial<HopDong>) => {
+    mutationFn: async (body: Partial<HopDongRequest>) => {
       const res = await api.post<HopDong>('/api/hopdong', body)
       return res.data
     },
@@ -59,7 +43,7 @@ export function useCreateHopDong() {
 export function useUpdateHopDong() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, body }: { id: number; body: Partial<HopDong> }) => {
+    mutationFn: async ({ id, body }: { id: number; body: Partial<HopDongRequest> }) => {
       const res = await api.put<HopDong>(`/api/hopdong/${id}`, body)
       return res.data
     },

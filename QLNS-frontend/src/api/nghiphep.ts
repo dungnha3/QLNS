@@ -1,31 +1,9 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import api from './client'
+import type { NghiPhep, NghiPhepRequest, Page } from '../types'
 
-export type NghiPhep = {
-  nghiphep_id: number
-  nhanVien: { nhanvien_id: number; ho_ten?: string } | number
-  tu_ngay?: string // For form compatibility
-  den_ngay?: string // For form compatibility
-  ngayBatDau?: string // Backend field
-  ngayKetThuc?: string // Backend field
-  so_ngay?: number
-  soNgayNghi?: number // Backend field
-  ly_do?: string
-  lyDo?: string // Backend field
-  loai?: string
-  loaiNghi?: string // Backend field
-  trangThai?: 'CHO_DUYET' | 'DA_DUYET' | 'TU_CHOI' | string
-  nguoiDuyetId?: number
-  ghiChuDuyet?: string
-}
-
-export type Page<T> = {
-  content: T[]
-  totalElements: number
-  totalPages: number
-  number: number
-  size: number
-}
+// Re-export for backward compatibility
+export type { NghiPhep }
 
 export function useNghiPhepList(page: number, size: number, trangThai?: string) {
   return useQuery({
@@ -43,7 +21,7 @@ export function useNghiPhepList(page: number, size: number, trangThai?: string) 
 export function useCreateNghiPhep() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (body: Partial<NghiPhep>) => {
+    mutationFn: async (body: Partial<NghiPhepRequest>) => {
       const res = await api.post<NghiPhep>('/api/nghiphep', body)
       return res.data
     },
@@ -54,7 +32,7 @@ export function useCreateNghiPhep() {
 export function useUpdateNghiPhep() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, body }: { id: number; body: Partial<NghiPhep> }) => {
+    mutationFn: async ({ id, body }: { id: number; body: Partial<NghiPhepRequest> }) => {
       const res = await api.put<NghiPhep>(`/api/nghiphep/${id}`, body)
       return res.data
     },

@@ -1,21 +1,9 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import api from './client'
+import type { PhongBan, Page } from '../types'
 
-export type PhongBan = {
-  phongban_id: number
-  ten_phongban: string
-  dia_diem: string
-  mo_ta?: string
-  soLuongNhanVien?: number
-}
-
-export type Page<T> = {
-  content: T[]
-  totalElements: number
-  totalPages: number
-  number: number
-  size: number
-}
+// Re-export for backward compatibility
+export type { PhongBan, Page }
 
 export function usePhongBanList(page: number, size: number) {
   return useQuery({

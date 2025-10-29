@@ -1,25 +1,9 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import api from './client'
+import type { ChamCong, ChamCongRequest, Page } from '../types'
 
-export type ChamCong = {
-  chamcong_id: number
-  gio_ra: string
-  gio_vao: string
-  ngay_lam: string
-  trangThai?: string
-  tongGioLam?: number
-  loaiCa?: string
-  ghiChu?: string
-  nhanVien: { nhanvien_id: number; ho_ten?: string } | number
-}
-
-export type Page<T> = {
-  content: T[]
-  totalElements: number
-  totalPages: number
-  number: number
-  size: number
-}
+// Re-export for backward compatibility
+export type { ChamCong, Page }
 
 export function useChamCongList(page: number, size: number, nhanVienId?: number, month?: number, year?: number) {
   return useQuery({
@@ -39,7 +23,7 @@ export function useChamCongList(page: number, size: number, nhanVienId?: number,
 export function useCreateChamCong() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (body: Partial<ChamCong>) => {
+    mutationFn: async (body: Partial<ChamCongRequest>) => {
       const res = await api.post<ChamCong>('/api/chamcong', body)
       return res.data
     },
@@ -50,7 +34,7 @@ export function useCreateChamCong() {
 export function useUpdateChamCong() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, body }: { id: number; body: Partial<ChamCong> }) => {
+    mutationFn: async ({ id, body }: { id: number; body: Partial<ChamCongRequest> }) => {
       const res = await api.put<ChamCong>(`/api/chamcong/${id}`, body)
       return res.data
     },
